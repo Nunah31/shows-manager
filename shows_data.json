@@ -252,16 +252,16 @@
     "notes": "מחכה לתשובה"
   },
   {
-    "id": 22,
     "date": "2026-06-29",
     "location": "משאבים נגב",
+    "show": "מסע ישראלי",
     "type": "יסודי",
     "presenter": "אנחנו",
     "count": 2,
-    "show": "מסע ישראלי",
-    "status": "signature",
+    "status": "approved",
     "morning": true,
-    "notes": "צריכה לקבל חתימה על ההסכם"
+    "notes": "צריכה לקבל חתימה על ההסכם",
+    "id": 22
   },
   {
     "id": 23,
