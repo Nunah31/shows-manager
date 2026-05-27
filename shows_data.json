@@ -288,16 +288,16 @@
     "id": 24
   },
   {
-    "id": 25,
     "date": "2026-09-09",
     "location": "אשקלון",
+    "show": "מסע ישראלי",
     "type": "חטיבה",
     "presenter": "מנשה אמיר",
     "count": 2,
-    "show": "מסע ישראלי",
-    "status": "moved",
+    "status": "approved",
     "morning": true,
-    "notes": ""
+    "notes": "זז מה4.9",
+    "id": 25
   },
   {
     "id": 26,
