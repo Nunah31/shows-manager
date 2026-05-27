@@ -230,14 +230,21 @@ async function loadFromGithub() {
     if (r.status === 404) return false;
     const d = await r.json();
     fileSha = d.sha;
-    shows = JSON.parse(atob(d.content.replace(/\n/g,'')));
+    const binary = atob(d.content.replace(/\n/g,''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    shows = JSON.parse(new TextDecoder('utf-8').decode(bytes));
     return true;
   } catch(e) { return false; }
 }
 
 async function saveToGithub() {
   showSaving();
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(shows, null, 2))));
+  const jsonStr = JSON.stringify(shows, null, 2);
+  const bytes2 = new TextEncoder().encode(jsonStr);
+  let binary2 = '';
+  bytes2.forEach(b => binary2 += String.fromCharCode(b));
+  const content = btoa(binary2);
   const body = { message: 'עדכון מופעים', content, ...(fileSha ? { sha: fileSha } : {}) };
   try {
     const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`,
