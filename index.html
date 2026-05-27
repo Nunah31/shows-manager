@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ניהול מופעים</title>
-<script src="config.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif; background: #F0F4FF; min-height: 100vh; direction: rtl; }
@@ -195,7 +194,7 @@
 </div>
 
 <script>
-const GITHUB_TOKEN = window.GH_TOKEN || '';
+const GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
 const GITHUB_REPO  = 'Nunah31/shows-manager';
 const DATA_FILE    = 'shows_data.json';
 
@@ -477,5 +476,28 @@ window.INITIAL_SHOWS = [
 
 init();
 </script>
+
+<div id="token-setup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;direction:rtl">
+  <div style="background:white;border-radius:20px;padding:24px;max-width:360px;width:90%;margin:0 16px">
+    <h2 style="font-size:18px;font-weight:700;color:#1E3A5F;margin-bottom:8px">🔑 הגדרת חיבור</h2>
+    <p style="font-size:14px;color:#64748B;margin-bottom:16px;line-height:1.6">כדי לשמור שינויים יש להכניס את ה-GitHub Token (פעם אחת בלבד)</p>
+    <input id="token-input" type="password" placeholder="ghp_..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px;direction:ltr">
+    <button onclick="saveToken()" style="width:100%;padding:12px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">שמור וחבר</button>
+  </div>
+</div>
+<script>
+function saveToken() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  localStorage.setItem('gh_token', t);
+  document.getElementById('token-setup').style.display = 'none';
+  init();
+}
+// Show setup if no token
+if (!localStorage.getItem('gh_token')) {
+  document.getElementById('token-setup').style.display = 'flex';
+}
+</script>
+
 </body>
 </html>
