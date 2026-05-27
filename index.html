@@ -12,6 +12,8 @@
   .header-inner { max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 20px; font-weight: 700; }
   .header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .btn-export { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 10px; padding: 8px 14px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-export:hover { background: rgba(255,255,255,0.3); }
   .btn-add { background: white; color: #1E3A5F; border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
 
   .main { max-width: 640px; margin: 0 auto; padding: 14px 12px 80px; }
@@ -105,7 +107,10 @@
       <h1>🎵 ניהול מופעים</h1>
       <p id="show-count"></p>
     </div>
-    <button class="btn-add" onclick="openAdd()">➕ מופע חדש</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-export" onclick="exportExcel()">📊 ייצוא אקסל</button>
+      <button class="btn-add" onclick="openAdd()">➕ מופע חדש</button>
+    </div>
   </div>
 </div>
 
@@ -434,6 +439,41 @@ function copyMsg() {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
+
+function exportExcel() {
+  const STATUS_LABELS = {
+    done:'התקיים', approved:'מאושר', pending:'ממתין אישור',
+    open:'לא סגור', signature:'ממתין חתימה', postponed:'נדחה',
+    moved:'הוזז', cancelled:'בוטל', '':'ללא סטטוס'
+  };
+
+  const data = shows.map(s => ({
+    'תאריך': s.date ? s.date.split('-').reverse().join('/') : '',
+    'מיקום': s.location || '',
+    'שם המופע': s.show || '',
+    'שכבת גיל': s.type || '',
+    'מי מביא': s.presenter || '',
+    'מס׳ סבבים': s.count || 1,
+    'בוקר/ערב': s.morning ? 'בוקר' : 'ערב',
+    'סטטוס': STATUS_LABELS[s.status] || '',
+    'הערות': s.notes || '',
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(data, { header: ['תאריך','מיקום','שם המופע','שכבת גיל','מי מביא','מס׳ סבבים','בוקר/ערב','סטטוס','הערות'] });
+
+  // Column widths
+  ws['!cols'] = [14,20,22,16,14,10,10,16,30].map(w => ({wch:w}));
+
+  // RTL
+  ws['!dir'] = 'rtl';
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'מופעים');
+
+  const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb, `מופעים_${today}.xlsx`);
+}
+
 async function init() {
   const loaded = await loadFromGithub();
   if (!loaded) {
