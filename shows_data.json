@@ -216,16 +216,16 @@
     "id": 18
   },
   {
-    "id": 19,
     "date": "2026-06-16",
     "location": "צור הדסה",
+    "show": "מסע ישראלי",
     "type": "חטיבה",
     "presenter": "מנשה אמיר",
     "count": 1,
-    "show": "מסע ישראלי",
-    "status": "pending",
+    "status": "approved",
     "morning": false,
-    "notes": ""
+    "notes": "",
+    "id": 19
   },
   {
     "id": 20,
