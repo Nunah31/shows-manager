@@ -427,12 +427,12 @@ async function deleteShow() {
 // ── Send ────────────────────────────────────────────────────────────────────
 function buildMsg() {
   const sel = shows.filter(s => selected.has(s.id)).sort((a,b) => a.date.localeCompare(b.date));
-  const lines = ['שלום,','אשמח לדעת אם אתם פנויים למופעים הבאים:',''];
+  const lines = ['היי 🙂','תעדכן אם אתה פנוי למופעים הבאים:',''];
   sel.forEach(s => {
     lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${s.type?` (${s.type})`:''}، ${s.count>1?s.count+' סבבים':'סבב אחד'}، ${s.morning?'בוקר':'ערב'}`);
     if (['open','pending',''].includes(s.status)) lines.push('   ⚠️ תאריך זה עדיין לא סגור סופית');
   });
-  lines.push('','אנא עדכנו אותי בהקדם 🙏');
+  lines.push('','עדכן בהקדם, תודה 🙏');
   return lines.join('\n');
 }
 
