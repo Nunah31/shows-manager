@@ -204,16 +204,16 @@
     "notes": "רעות רמת ורבר"
   },
   {
-    "id": 18,
     "date": "2026-06-14",
     "location": "ראשון לציון",
+    "show": "מסיבת סוף שנה - ערב",
     "type": "חטיבה",
     "presenter": "מנשה אמיר",
     "count": 1,
-    "show": "מסיבת סוף שנה - ערב",
-    "status": "pending",
+    "status": "approved",
     "morning": false,
-    "notes": "מחכה לתשובה ממנשה"
+    "notes": "מחכה לתשובה ממנשה",
+    "id": 18
   },
   {
     "id": 19,
