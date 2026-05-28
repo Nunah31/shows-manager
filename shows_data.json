@@ -223,7 +223,7 @@
     "presenter": "מנשה אמיר",
     "count": 1,
     "status": "approved",
-    "morning": false,
+    "morning": true,
     "notes": "",
     "id": 19
   },
