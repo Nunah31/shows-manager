@@ -13,24 +13,24 @@
 <title>ניהול מופעים</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif; background: #F0F4FF; min-height: 100vh; direction: rtl; }
+  body { font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif; background: #F0F4FF; min-height: 100vh; direction: rtl; font-size: 16px; }
 
   .header { background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%); padding: 18px 16px 14px; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
   .header-inner { max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-  .header h1 { font-size: 20px; font-weight: 700; }
-  .header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
-  .btn-export { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 10px; padding: 8px 14px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .header p { font-size: 15px; opacity: 0.75; margin-top: 2px; }
+  .btn-export { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 15px; cursor: pointer; font-family: inherit; }
   .btn-export:hover { background: rgba(255,255,255,0.3); }
-  .btn-add { background: white; color: #1E3A5F; border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-add { background: white; color: #1E3A5F; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; }
 
   .main { max-width: 640px; margin: 0 auto; padding: 14px 12px 80px; }
 
   .filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-  .filter-btn { padding: 5px 12px; border-radius: 20px; border: none; cursor: pointer; font-size: 13px; font-family: inherit; background: #E2E8F0; color: #374151; transition: all 0.15s; }
+  .filter-btn { padding: 7px 14px; border-radius: 20px; border: none; cursor: pointer; font-size: 15px; font-family: inherit; background: #E2E8F0; color: #374151; transition: all 0.15s; }
   .filter-btn.active { background: #2563EB; color: white; font-weight: 600; }
 
   .toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
-  .btn-sm { padding: 5px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-sm { padding: 7px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit; }
   .btn-outline-blue { background: white; border: 1px solid #2563EB; color: #2563EB; }
   .btn-outline-red  { background: white; border: 1px solid #EF4444; color: #EF4444; }
   .btn-solid-blue   { background: #2563EB; border: none; color: white; font-weight: 700; }
@@ -42,27 +42,29 @@
   .show-card.past { opacity: 0.65; }
   .card-body { padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
 
-  .checkbox { width: 20px; height: 20px; border-radius: 5px; border: 2px solid #CBD5E1; background: white; flex-shrink: 0; margin-top: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .checkbox { width: 22px; height: 22px; border-radius: 5px; border: 2px solid #CBD5E1; background: white; flex-shrink: 0; margin-top: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
   .checkbox.checked { background: #2563EB; border-color: #2563EB; }
-  .checkbox.checked::after { content: '✓'; color: white; font-size: 13px; line-height: 1; }
+  .checkbox.checked::after { content: '✓'; color: white; font-size: 14px; line-height: 1; }
 
   .card-content { flex: 1; cursor: pointer; min-width: 0; }
   .card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .card-date { font-weight: 700; font-size: 16px; color: #1E3A5F; }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; border: 1px solid; }
-  .time-badge { font-size: 11px; padding: 2px 7px; border-radius: 10px; }
-  .card-location { font-size: 14px; color: #111827; }
-  .card-location span { color: #64748B; font-size: 13px; }
-  .card-show { font-size: 13px; color: #6B7280; margin-top: 2px; }
-  .card-presenter { font-size: 13px; color: #64748B; margin-top: 2px; }
-  .card-notes { font-size: 12px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-date { font-weight: 700; font-size: 18px; color: #1E3A5F; }
+  .badge { font-size: 13px; padding: 3px 9px; border-radius: 10px; font-weight: 500; border: 1px solid; }
+  .time-badge { font-size: 13px; padding: 3px 8px; border-radius: 10px; }
+  .card-location { font-size: 16px; color: #111827; }
+  .card-location span { color: #64748B; font-size: 15px; }
+  .card-show { font-size: 15px; color: #6B7280; margin-top: 2px; }
+  .card-presenter { font-size: 15px; color: #64748B; margin-top: 2px; }
+  .card-contact { font-size: 14px; color: #64748B; margin-top: 2px; }
+  .card-team { font-size: 14px; color: #7C3AED; margin-top: 2px; }
+  .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .card-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
-  .icon-btn { background: #EFF6FF; border: none; border-radius: 7px; padding: 5px 9px; cursor: pointer; font-size: 14px; line-height: 1; text-decoration: none; display: block; text-align: center; }
+  .icon-btn { background: #EFF6FF; border: none; border-radius: 7px; padding: 6px 10px; cursor: pointer; font-size: 16px; line-height: 1; text-decoration: none; display: block; text-align: center; }
   .icon-btn:hover { background: #DBEAFE; }
 
   /* Saving indicator */
-  .save-indicator { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1E3A5F; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-family: inherit; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .save-indicator { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1E3A5F; color: white; padding: 10px 20px; border-radius: 20px; font-size: 15px; font-family: inherit; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   .save-indicator.visible { opacity: 1; }
 
   /* Modal overlay */
@@ -70,39 +72,51 @@
   .modal-overlay.open { display: flex; }
   .modal { background: white; border-radius: 20px 20px 0 0; padding: 20px 16px 32px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .modal-title { font-size: 18px; font-weight: 700; color: #1E3A5F; }
-  .modal-close { background: #F1F5F9; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .modal-title { font-size: 20px; font-weight: 700; color: #1E3A5F; }
+  .modal-close { background: #F1F5F9; border: none; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-full { grid-column: 1 / -1; }
-  .field label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; }
-  .field input, .field select, .field textarea { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 14px; font-family: inherit; background: white; color: #111827; outline: none; direction: rtl; }
+  .field label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 16px; font-family: inherit; background: white; color: #111827; outline: none; direction: rtl; }
   .field input:focus, .field select:focus, .field textarea:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
   .field textarea { resize: vertical; line-height: 1.5; }
 
   .toggle-row { display: flex; gap: 8px; margin-top: 4px; }
-  .toggle-opt { flex: 1; padding: 7px 0; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-family: inherit; background: #E2E8F0; color: #374151; font-weight: 500; }
+  .toggle-opt { flex: 1; padding: 8px 0; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-family: inherit; background: #E2E8F0; color: #374151; font-weight: 500; }
   .toggle-opt.active { background: #2563EB; color: white; font-weight: 700; }
 
   .form-actions { display: flex; gap: 10px; margin-top: 18px; }
-  .btn-save { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; background: #2563EB; color: white; font-weight: 700; font-size: 15px; font-family: inherit; }
+  .btn-save { flex: 1; padding: 13px; border-radius: 10px; border: none; cursor: pointer; background: #2563EB; color: white; font-weight: 700; font-size: 17px; font-family: inherit; }
   .btn-save:disabled { background: #CBD5E1; cursor: not-allowed; }
-  .btn-delete { padding: 12px 16px; border-radius: 10px; border: none; cursor: pointer; background: #FEE2E2; color: #DC2626; font-weight: 700; font-size: 14px; font-family: inherit; }
+  .btn-delete { padding: 13px 16px; border-radius: 10px; border: none; cursor: pointer; background: #FEE2E2; color: #DC2626; font-weight: 700; font-size: 16px; font-family: inherit; }
+
+  /* Team selection */
+  .team-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .team-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; border: 1px solid #E2E8F0; background: #F8FAFC; cursor: pointer; transition: all 0.12s; user-select: none; }
+  .team-item:hover { background: #EFF6FF; border-color: #BFDBFE; }
+  .team-item.selected { background: #EFF6FF; border-color: #2563EB; }
+  .team-check { width: 20px; height: 20px; border-radius: 5px; border: 2px solid #CBD5E1; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.12s; }
+  .team-item.selected .team-check { background: #2563EB; border-color: #2563EB; color: white; }
+  .team-name { font-size: 15px; color: #1E293B; flex: 1; }
+  .team-custom-row { display: flex; gap: 8px; margin-top: 6px; }
+  .team-custom-row input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 15px; font-family: inherit; }
+  .team-custom-row button { padding: 8px 14px; border-radius: 8px; border: none; background: #2563EB; color: white; font-size: 15px; font-family: inherit; cursor: pointer; font-weight: 600; }
 
   /* Send panel */
   .send-panel { display: none; position: fixed; inset: 0; background: white; z-index: 300; overflow-y: auto; }
   .send-panel.open { display: block; }
   .send-header { background: linear-gradient(135deg, #1E3A5F, #2563EB); padding: 16px; color: white; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; }
-  .send-back { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; font-family: inherit; }
+  .send-back { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 16px; font-family: inherit; }
   .send-body { max-width: 600px; margin: 0 auto; padding: 16px; }
-  .msg-preview { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.8; color: #1E293B; white-space: pre-wrap; direction: rtl; text-align: right; margin-bottom: 14px; font-family: inherit; }
+  .msg-preview { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; font-size: 16px; line-height: 1.9; color: #1E293B; white-space: pre-wrap; direction: rtl; text-align: right; margin-bottom: 14px; font-family: inherit; }
   .send-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-copy { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; background: #2563EB; color: white; font-weight: 700; font-size: 14px; font-family: inherit; }
+  .btn-copy { padding: 11px 22px; border-radius: 10px; border: none; cursor: pointer; background: #2563EB; color: white; font-weight: 700; font-size: 16px; font-family: inherit; }
   .btn-copy.copied { background: #16A34A; }
-  .btn-wa { padding: 10px 20px; border-radius: 10px; text-decoration: none; background: #25D366; color: white; font-weight: 700; font-size: 14px; font-family: inherit; display: inline-block; }
+  .btn-wa { padding: 11px 22px; border-radius: 10px; text-decoration: none; background: #25D366; color: white; font-weight: 700; font-size: 16px; font-family: inherit; display: inline-block; }
 
-  .empty { text-align: center; color: #9CA3AF; padding: 40px 20px; font-size: 15px; }
-  .footer-hint { text-align: center; color: #CBD5E1; font-size: 12px; margin-top: 16px; }
+  .empty { text-align: center; color: #9CA3AF; padding: 40px 20px; font-size: 17px; }
+  .footer-hint { text-align: center; color: #CBD5E1; font-size: 14px; margin-top: 16px; }
 </style>
 </head>
 <body>
@@ -157,11 +171,8 @@
     </div>
     <div class="form-grid">
       <div class="field"><label>תאריך *</label><input type="date" id="f-date"></div>
+      <div class="field"><label>שעת התחלה</label><input type="time" id="f-time" placeholder="לא חובה"></div>
       <div class="field"><label>מספר סבבים</label><input type="number" id="f-count" min="1" max="10" value="1"></div>
-      <div class="field form-full"><label>מיקום *</label><input type="text" id="f-location" placeholder="עיר / מוסד"></div>
-      <div class="field form-full"><label>שם המופע / תוכנית</label><input type="text" id="f-show" placeholder="מסע ישראלי / לאהבה שלי אין סוף..."></div>
-      <div class="field"><label>שכבת גיל / קהל</label><input type="text" id="f-type" placeholder="יסודי / תיכון..."></div>
-      <div class="field"><label>מי מביא</label><input type="text" id="f-presenter" placeholder="מנשה / אנחנו..."></div>
       <div class="field"><label>סטטוס</label>
         <select id="f-status">
           <option value="">ללא סטטוס</option>
@@ -175,6 +186,12 @@
           <option value="cancelled">בוטל ❌</option>
         </select>
       </div>
+      <div class="field form-full"><label>מיקום *</label><input type="text" id="f-location" placeholder="עיר / מוסד"></div>
+      <div class="field form-full"><label>שם המופע / תוכנית</label><input type="text" id="f-show" placeholder="מסע ישראלי / לאהבה שלי אין סוף..."></div>
+      <div class="field"><label>שכבת גיל / קהל</label><input type="text" id="f-type" placeholder="יסודי / תיכון..."></div>
+      <div class="field"><label>מי מביא</label><input type="text" id="f-presenter" placeholder="מנשה / אנחנו..."></div>
+      <div class="field"><label>איש קשר</label><input type="text" id="f-contact" placeholder="שם איש הקשר"></div>
+      <div class="field"><label>טלפון</label><input type="tel" id="f-phone" placeholder="050-0000000" dir="ltr"></div>
       <div class="field"><label>שעת המופע</label>
         <div class="toggle-row">
           <button class="toggle-opt active" id="tog-morning" onclick="setMorning(true)">☀️ בוקר</button>
@@ -182,6 +199,16 @@
         </div>
       </div>
       <div class="field form-full"><label>הערות</label><textarea id="f-notes" rows="3" placeholder="הערות חופשיות..."></textarea></div>
+
+      <!-- Team selection -->
+      <div class="field form-full">
+        <label>👥 צוות למופע</label>
+        <div class="team-list" id="team-list"></div>
+        <div class="team-custom-row">
+          <input type="text" id="custom-member-input" placeholder="הוסף איש צוות...">
+          <button onclick="addCustomMember()">הוסף</button>
+        </div>
+      </div>
     </div>
     <div class="form-actions">
       <button class="btn-save" id="btn-save" onclick="saveForm()">➕ הוסף מופע</button>
@@ -194,7 +221,7 @@
 <div class="send-panel" id="send-panel">
   <div class="send-header">
     <button class="send-back" onclick="closeSend()">← חזרה</button>
-    <h2 style="font-size:18px;font-weight:700" id="send-title">📤 שליחה לנגנים</h2>
+    <h2 style="font-size:20px;font-weight:700" id="send-title">📤 שליחה לנגנים</h2>
   </div>
   <div class="send-body">
     <div class="msg-preview" id="msg-preview"></div>
@@ -209,6 +236,20 @@
 const GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
 const GITHUB_REPO  = 'Nunah31/shows-manager';
 const DATA_FILE    = 'shows_data.json';
+
+const BASE_TEAM = [
+  'בוריס – הגברה',
+  'דניאל טהאן',
+  'עמית כהן',
+  'עומרי - גיטרה',
+  'ניב רז',
+  'גיל סמואל',
+  'אריאל סקסופון',
+  'שי ברק',
+  'נתי כהן',
+  'מתן דוד',
+  'אדוארד – הגברה',
+];
 
 const STATUS_CFG = {
   done:      { label:'התקיים ✅',       bg:'#DCFCE7', text:'#166534', border:'#86EFAC' },
@@ -228,6 +269,10 @@ let currentFilter = 'future';
 let editId = null;
 let formMorning = true;
 let fileSha = null;
+
+// Team state for the form
+let selectedTeam = new Set();  // names currently checked
+let customMembers = [];        // extra names added in this form session
 
 // ── GitHub helpers ──────────────────────────────────────────────────────────
 async function loadFromGithub() {
@@ -271,13 +316,63 @@ function fmtDate(d) { if(!d) return ''; const [y,m,day]=d.split('-'); return `${
 function buildCalUrl(s) {
   const [y,m,day] = s.date.split('-');
   const pad = x => String(x).padStart(2,'0');
-  const h = s.morning ? '09' : '19';
-  const start = `${y}${pad(m)}${pad(day)}T${h}0000`;
-  const endH = parseInt(h) + Math.max(1,s.count);
-  const end = `${y}${pad(m)}${pad(day)}T${pad(endH)}0000`;
-  const title = encodeURIComponent(`מופע - ${s.location}`);
+
+  // Determine hour from explicit time or morning/evening default
+  let h, endH;
+  if (s.time) {
+    const [hh, mm] = s.time.split(':');
+    h = hh;
+    const totalMins = parseInt(hh)*60 + parseInt(mm) + Math.max(60, s.count * 60);
+    endH = pad(Math.floor(totalMins/60)) + pad(totalMins%60);
+    const start = `${y}${pad(m)}${pad(day)}T${h}${mm}00`;
+    const end   = `${y}${pad(m)}${pad(day)}T${endH}00`;
+
+    // Title: show name / who brought / count if >1
+    const presenter = (s.presenter||'').trim().toLowerCase();
+    const wePresent = presenter === 'אנחנו' || presenter === '';
+    let titleParts = [];
+    if (s.show) titleParts.push(s.show);
+    if (!wePresent && s.presenter) titleParts.push(s.presenter);
+    if (s.count > 1) titleParts.push(`${s.count} סבבים`);
+    const title = encodeURIComponent(titleParts.join(' | ') || `מופע - ${s.location}`);
+
+    const loc = encodeURIComponent(s.location);
+
+    // Details: contact+phone first, then team
+    let detParts = [];
+    if (s.contact) detParts.push(`איש קשר: ${s.contact}${s.phone ? ' | ' + s.phone : ''}`);
+    if (s.team && s.team.length > 0) detParts.push(`צוות: ${s.team.join(', ')}`);
+    if (s.show) detParts.push(`תוכנית: ${s.show}`);
+    if (s.type) detParts.push(`קהל: ${s.type}`);
+    if (s.notes) detParts.push(`הערות: ${s.notes}`);
+    const det = encodeURIComponent(detParts.join('\n'));
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${loc}&details=${det}`;
+  }
+
+  // No explicit time — use morning/evening default
+  const startH = s.morning ? '09' : '19';
+  const endHnum = parseInt(startH) + Math.max(1, s.count);
+  const start = `${y}${pad(m)}${pad(day)}T${startH}0000`;
+  const end   = `${y}${pad(m)}${pad(day)}T${pad(endHnum)}0000`;
+
+  const presenter = (s.presenter||'').trim().toLowerCase();
+  const wePresent = presenter === 'אנחנו' || presenter === '';
+  let titleParts = [];
+  if (s.show) titleParts.push(s.show);
+  if (!wePresent && s.presenter) titleParts.push(s.presenter);
+  if (s.count > 1) titleParts.push(`${s.count} סבבים`);
+  const title = encodeURIComponent(titleParts.join(' | ') || `מופע - ${s.location}`);
+
   const loc = encodeURIComponent(s.location);
-  const det = encodeURIComponent([s.show&&`תוכנית: ${s.show}`,s.type&&`קהל: ${s.type}`,`מי מביא: ${s.presenter}`,s.count>1&&`${s.count} סבבים`,s.notes&&`הערות: ${s.notes}`].filter(Boolean).join('\n'));
+  let detParts = [];
+  if (s.contact) detParts.push(`איש קשר: ${s.contact}${s.phone ? ' | ' + s.phone : ''}`);
+  if (s.team && s.team.length > 0) detParts.push(`צוות: ${s.team.join(', ')}`);
+  if (s.show) detParts.push(`תוכנית: ${s.show}`);
+  if (s.type) detParts.push(`קהל: ${s.type}`);
+  if (s.notes) detParts.push(`הערות: ${s.notes}`);
+  const det = encodeURIComponent(detParts.join('\n'));
+
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${loc}&details=${det}`;
 }
 
@@ -313,20 +408,25 @@ function render() {
     const s = STATUS_CFG[show.status] || STATUS_CFG[''];
     const isSel = selected.has(show.id);
     const isPast = show.date < today;
+    const teamStr = show.team && show.team.length > 0 ? `👥 ${show.team.join(', ')}` : '';
+    const contactStr = show.contact ? `📞 ${show.contact}${show.phone ? ' · ' + show.phone : ''}` : '';
+    const timeStr = show.time ? ` · ${show.time}` : '';
     return `
     <div class="show-card${isSel?' selected':''}${isPast?' past':''}">
       <div class="card-body">
         <div class="checkbox${isSel?' checked':''}" onclick="toggleSel(${show.id})"></div>
         <div class="card-content" onclick="toggleSel(${show.id})">
           <div class="card-top">
-            <span class="card-date">${fmtDate(show.date)}</span>
+            <span class="card-date">${fmtDate(show.date)}${timeStr}</span>
             <span class="badge" style="background:${s.bg};color:${s.text};border-color:${s.border}">${s.label}</span>
             <span class="time-badge" style="background:${show.morning?'#FEF9C3':'#EFF6FF'};color:${show.morning?'#92400E':'#1E40AF'}">${show.morning?'☀️ בוקר':'🌙 ערב'}</span>
-            ${show.count>1?`<span style="font-size:11px;color:#64748B">🔁 ${show.count}×</span>`:''}
+            ${show.count>1?`<span style="font-size:13px;color:#64748B">🔁 ${show.count}×</span>`:''}
           </div>
           <div class="card-location">📍 <strong>${show.location}</strong>${show.type?` <span>· ${show.type}</span>`:''}</div>
           ${show.show?`<div class="card-show">🎭 ${show.show}</div>`:''}
           <div class="card-presenter">👤 ${show.presenter}</div>
+          ${contactStr?`<div class="card-contact">${contactStr}</div>`:''}
+          ${teamStr?`<div class="card-team">${teamStr}</div>`:''}
           ${show.notes?`<div class="card-notes">💬 ${show.notes}</div>`:''}
         </div>
         <div class="card-actions">
@@ -336,6 +436,36 @@ function render() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── Team helpers ─────────────────────────────────────────────────────────────
+function renderTeamList() {
+  const container = document.getElementById('team-list');
+  const allMembers = [...BASE_TEAM, ...customMembers];
+  container.innerHTML = allMembers.map(name => {
+    const isSel = selectedTeam.has(name);
+    return `<div class="team-item${isSel?' selected':''}" onclick="toggleTeamMember('${name.replace(/'/g,"\\'")}')">
+      <div class="team-check">${isSel?'✓':''}</div>
+      <span class="team-name">${name}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleTeamMember(name) {
+  selectedTeam.has(name) ? selectedTeam.delete(name) : selectedTeam.add(name);
+  renderTeamList();
+}
+
+function addCustomMember() {
+  const input = document.getElementById('custom-member-input');
+  const name = input.value.trim();
+  if (!name) return;
+  if (!BASE_TEAM.includes(name) && !customMembers.includes(name)) {
+    customMembers.push(name);
+  }
+  selectedTeam.add(name);
+  input.value = '';
+  renderTeamList();
 }
 
 // ── Selection ───────────────────────────────────────────────────────────────
@@ -356,10 +486,13 @@ function openAdd() {
   document.getElementById('modal-title').textContent = '➕ מופע חדש';
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
-  ['f-date','f-location','f-show','f-type','f-presenter','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-date','f-time','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
+  selectedTeam = new Set();
+  customMembers = [];
+  renderTeamList();
   document.getElementById('modal').classList.add('open');
 }
 
@@ -371,14 +504,22 @@ function openEdit(id) {
   document.getElementById('btn-save').textContent = '💾 שמור שינויים';
   document.getElementById('btn-delete').style.display = '';
   document.getElementById('f-date').value = show.date;
+  document.getElementById('f-time').value = show.time || '';
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-show').value = show.show || '';
   document.getElementById('f-type').value = show.type || '';
   document.getElementById('f-presenter').value = show.presenter || '';
+  document.getElementById('f-contact').value = show.contact || '';
+  document.getElementById('f-phone').value = show.phone || '';
   document.getElementById('f-count').value = show.count || 1;
   document.getElementById('f-status').value = show.status || '';
   document.getElementById('f-notes').value = show.notes || '';
   setMorning(show.morning !== false);
+  // Restore team
+  const savedTeam = show.team || [];
+  selectedTeam = new Set(savedTeam);
+  customMembers = savedTeam.filter(n => !BASE_TEAM.includes(n));
+  renderTeamList();
   document.getElementById('modal').classList.add('open');
 }
 
@@ -399,10 +540,14 @@ async function saveForm() {
     show: document.getElementById('f-show').value.trim(),
     type: document.getElementById('f-type').value.trim(),
     presenter: document.getElementById('f-presenter').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    time: document.getElementById('f-time').value || '',
     count: parseInt(document.getElementById('f-count').value) || 1,
     status: document.getElementById('f-status').value,
     morning: formMorning,
     notes: document.getElementById('f-notes').value.trim(),
+    team: [...selectedTeam],
   };
   if (editId) {
     const idx = shows.findIndex(s => s.id === editId);
@@ -427,12 +572,14 @@ async function deleteShow() {
 // ── Send ────────────────────────────────────────────────────────────────────
 function buildMsg() {
   const sel = shows.filter(s => selected.has(s.id)).sort((a,b) => a.date.localeCompare(b.date));
-  const lines = ['היי 🙂','תעדכן אם אתה פנוי למופעים הבאים:',''];
+  const lines = ['היי אחי 🙂', 'להלן התאריכים הקרובים:', ''];
   sel.forEach(s => {
-    lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${s.type?` (${s.type})`:''}، ${s.count>1?s.count+' סבבים':'סבב אחד'}، ${s.morning?'בוקר':'ערב'}`);
+    // Count: if 1 — nothing; if more — bold (WhatsApp bold = *text*)
+    const countStr = s.count > 1 ? ` · *${s.count} סבבים*` : '';
+    lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${s.type?` (${s.type})`:''}${countStr} · ${s.morning?'בוקר':'ערב'}`);
     if (['open','pending',''].includes(s.status)) lines.push('   ⚠️ תאריך זה עדיין לא סגור סופית');
   });
-  lines.push('','עדכן בהקדם, תודה 🙏');
+  lines.push('', 'עדכן בהקדם, תודה 🙏');
   return lines.join('\n');
 }
 
@@ -452,8 +599,7 @@ function copyMsg() {
   setTimeout(() => { btn.textContent = '📋 העתק'; btn.classList.remove('copied'); }, 2000);
 }
 
-// ── Init ────────────────────────────────────────────────────────────────────
-
+// ── Excel Export ────────────────────────────────────────────────────────────
 function exportExcel() {
   const STATUS_LABELS = {
     done:'התקיים', approved:'מאושר', pending:'ממתין אישור',
@@ -463,22 +609,23 @@ function exportExcel() {
 
   const data = shows.map(s => ({
     'תאריך': s.date ? s.date.split('-').reverse().join('/') : '',
+    'שעה': s.time || '',
     'מיקום': s.location || '',
     'שם המופע': s.show || '',
     'שכבת גיל': s.type || '',
     'מי מביא': s.presenter || '',
+    'איש קשר': s.contact || '',
+    'טלפון': s.phone || '',
     'מס׳ סבבים': s.count || 1,
     'בוקר/ערב': s.morning ? 'בוקר' : 'ערב',
     'סטטוס': STATUS_LABELS[s.status] || '',
+    'צוות': s.team ? s.team.join(', ') : '',
     'הערות': s.notes || '',
   }));
 
-  const ws = XLSX.utils.json_to_sheet(data, { header: ['תאריך','מיקום','שם המופע','שכבת גיל','מי מביא','מס׳ סבבים','בוקר/ערב','סטטוס','הערות'] });
-
-  // Column widths
-  ws['!cols'] = [14,20,22,16,14,10,10,16,30].map(w => ({wch:w}));
-
-  // RTL
+  const headers = ['תאריך','שעה','מיקום','שם המופע','שכבת גיל','מי מביא','איש קשר','טלפון','מס׳ סבבים','בוקר/ערב','סטטוס','צוות','הערות'];
+  const ws = XLSX.utils.json_to_sheet(data, { header: headers });
+  ws['!cols'] = [14,8,20,22,16,14,16,14,10,10,16,30,30].map(w => ({wch:w}));
   ws['!dir'] = 'rtl';
 
   const wb = XLSX.utils.book_new();
@@ -488,44 +635,43 @@ function exportExcel() {
   XLSX.writeFile(wb, `מופעים_${today}.xlsx`);
 }
 
+// ── Init ────────────────────────────────────────────────────────────────────
 async function init() {
   const loaded = await loadFromGithub();
   if (!loaded) {
-    // First time — load initial data and save
     shows = window.INITIAL_SHOWS || [];
     await saveToGithub();
   }
   render();
 }
 
-// Initial data (only used on first load if no GitHub file exists)
 window.INITIAL_SHOWS = [
-  { id:1,  date:"2025-11-20", location:"ירושלים",             type:"ערב חיילים",     presenter:"אנחנו",       count:1, show:"צבא",                  status:"done",      morning:false, notes:"2 נגנים" },
-  { id:2,  date:"2025-12-15", location:"מודיעין",             type:"",               presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"מופע 1 - 10:30  מופע 2 - 12:00" },
-  { id:3,  date:"2026-01-27", location:"ראשון לציון",         type:"",               presenter:"מנשה אמיר",   count:3, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"" },
-  { id:4,  date:"2026-02-08", location:"שקמים הוד השרון",    type:"",               presenter:"מנשה אמיר",   count:2, show:"הוד השרון",             status:"done",      morning:true,  notes:"פחות עממי לתאם עם טלי" },
-  { id:5,  date:"2026-02-11", location:"תל מונד",             type:"מתנדבים",        presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"done",      morning:false, notes:"ערב" },
-  { id:6,  date:"2026-02-13", location:"הנשיא בת ים",        type:"יסודי",          presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"ישלמו לאמיר והוא יעביר לנו" },
-  { id:7,  date:"2026-02-17", location:"נהרייה",              type:"יסודי אושיסקין", presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"" },
-  { id:8,  date:"2026-03-10", location:"פתח תקווה",          type:"גיל שלישי",      presenter:"אנחנו",       count:1, show:"יום המעשים הטובים",    status:"done",      morning:true,  notes:"רעות רמת ורבר" },
-  { id:9,  date:"2026-04-12", location:"מקיף ט אשדוד",       type:"על יסודי",       presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"9:30  11:00" },
-  { id:10, date:"2026-04-15", location:"רמת גן",             type:"מבוגרים",        presenter:"אנחנו",       count:1, show:"מבוגרים",               status:"done",      morning:false, notes:"ערב" },
-  { id:11, date:"2026-04-16", location:"אורט רמות ים",       type:"תיכון",          presenter:"אנחנו ?",     count:1, show:"מסע ישראלי",            status:"open",      morning:true,  notes:"צריך לתאם לשנה הבאה" },
-  { id:12, date:"2026-04-21", location:"עירוני ד'",          type:"",               presenter:"חגי שניר",    count:2, show:"שירי לוחמים",           status:"done",      morning:true,  notes:"אולם ספורט" },
-  { id:13, date:"2026-04-23", location:"מעיינות כפר אדומים", type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"תחילת מופע 12:00" },
-  { id:14, date:"2026-04-27", location:"הדר כפר יונה",       type:"יסודי",          presenter:"אנחנו",       count:1, show:"הופעה ישראלית",         status:"done",      morning:true,  notes:"תחילת מופע 11:00" },
-  { id:15, date:"2026-05-11", location:"עמק חפר",            type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"כבר שולם בצ'ק ב-15.9.25" },
-  { id:16, date:"2026-05-13", location:"ממד חמד שפיר",       type:"יסודי",          presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"מועצה איזורית שפיר" },
-  { id:17, date:"2026-05-19", location:"פתח תקווה",          type:"גיל שלישי",      presenter:"אנחנו",       count:1, show:"שבועות יום ירושלים",   status:"done",      morning:true,  notes:"רעות רמת ורבר" },
-  { id:18, date:"2026-06-14", location:"ראשון לציון",        type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסיבת סוף שנה - ערב",  status:"pending",   morning:false, notes:"מחכה לתשובה ממנשה" },
-  { id:19, date:"2026-06-16", location:"צור הדסה",           type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"pending",   morning:false, notes:"" },
-  { id:20, date:"2026-06-18", location:"מקיף י ראשלצ",       type:"תיכון",          presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"approved",  morning:true,  notes:"מיכל דביר יש הסכם חתום" },
-  { id:21, date:"2026-06-21", location:"חולון",              type:"תיכון צרפתי",    presenter:"אנחנו",       count:2, show:"מסע ישראלי",            status:"open",      morning:true,  notes:"מחכה לתשובה" },
-  { id:22, date:"2026-06-29", location:"משאבים נגב",         type:"יסודי",          presenter:"אנחנו",       count:2, show:"מסע ישראלי",            status:"signature", morning:true,  notes:"צריכה לקבל חתימה על ההסכם" },
-  { id:23, date:"2026-06-30", location:"ישורון ראשון",       type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"approved",  morning:true,  notes:"דתי" },
-  { id:24, date:"2026-08-04", location:"מגדל העמק",          type:"ערב מבוגרים",    presenter:"סינייה",      count:1, show:"לאהבה שלי אין סוף",    status:"postponed", morning:false, notes:"קליידן + סקסופון + מצגת + מפעילה — נדחה בגלל המלחמה" },
-  { id:25, date:"2026-09-09", location:"אשקלון",             type:"חטיבה",          presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"moved",     morning:true,  notes:"" },
-  { id:26, date:"2026-09-14", location:"איתמר - נתניה",      type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"",          morning:true,  notes:"היה אמור להתקיים ב20.3.26" },
+  { id:1,  date:"2025-11-20", location:"ירושלים",             type:"ערב חיילים",     presenter:"אנחנו",       count:1, show:"צבא",                  status:"done",      morning:false, notes:"2 נגנים",            contact:'', phone:'', time:'', team:[] },
+  { id:2,  date:"2025-12-15", location:"מודיעין",             type:"",               presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"מופע 1 - 10:30  מופע 2 - 12:00", contact:'', phone:'', time:'', team:[] },
+  { id:3,  date:"2026-01-27", location:"ראשון לציון",         type:"",               presenter:"מנשה אמיר",   count:3, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"",                   contact:'', phone:'', time:'', team:[] },
+  { id:4,  date:"2026-02-08", location:"שקמים הוד השרון",    type:"",               presenter:"מנשה אמיר",   count:2, show:"הוד השרון",             status:"done",      morning:true,  notes:"פחות עממי לתאם עם טלי", contact:'', phone:'', time:'', team:[] },
+  { id:5,  date:"2026-02-11", location:"תל מונד",             type:"מתנדבים",        presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"done",      morning:false, notes:"ערב",                contact:'', phone:'', time:'', team:[] },
+  { id:6,  date:"2026-02-13", location:"הנשיא בת ים",        type:"יסודי",          presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"ישלמו לאמיר והוא יעביר לנו", contact:'', phone:'', time:'', team:[] },
+  { id:7,  date:"2026-02-17", location:"נהרייה",              type:"יסודי אושיסקין", presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"",                   contact:'', phone:'', time:'', team:[] },
+  { id:8,  date:"2026-03-10", location:"פתח תקווה",          type:"גיל שלישי",      presenter:"אנחנו",       count:1, show:"יום המעשים הטובים",    status:"done",      morning:true,  notes:"רעות רמת ורבר",    contact:'', phone:'', time:'', team:[] },
+  { id:9,  date:"2026-04-12", location:"מקיף ט אשדוד",       type:"על יסודי",       presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"9:30  11:00",        contact:'', phone:'', time:'', team:[] },
+  { id:10, date:"2026-04-15", location:"רמת גן",             type:"מבוגרים",        presenter:"אנחנו",       count:1, show:"מבוגרים",               status:"done",      morning:false, notes:"ערב",                contact:'', phone:'', time:'', team:[] },
+  { id:11, date:"2026-04-16", location:"אורט רמות ים",       type:"תיכון",          presenter:"אנחנו ?",     count:1, show:"מסע ישראלי",            status:"open",      morning:true,  notes:"צריך לתאם לשנה הבאה", contact:'', phone:'', time:'', team:[] },
+  { id:12, date:"2026-04-21", location:"עירוני ד'",          type:"",               presenter:"חגי שניר",    count:2, show:"שירי לוחמים",           status:"done",      morning:true,  notes:"אולם ספורט",         contact:'', phone:'', time:'', team:[] },
+  { id:13, date:"2026-04-23", location:"מעיינות כפר אדומים", type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"תחילת מופע 12:00",  contact:'', phone:'', time:'', team:[] },
+  { id:14, date:"2026-04-27", location:"הדר כפר יונה",       type:"יסודי",          presenter:"אנחנו",       count:1, show:"הופעה ישראלית",         status:"done",      morning:true,  notes:"תחילת מופע 11:00",  contact:'', phone:'', time:'', team:[] },
+  { id:15, date:"2026-05-11", location:"עמק חפר",            type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"כבר שולם בצ'ק ב-15.9.25", contact:'', phone:'', time:'', team:[] },
+  { id:16, date:"2026-05-13", location:"ממד חמד שפיר",       type:"יסודי",          presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"done",      morning:true,  notes:"מועצה איזורית שפיר", contact:'', phone:'', time:'', team:[] },
+  { id:17, date:"2026-05-19", location:"פתח תקווה",          type:"גיל שלישי",      presenter:"אנחנו",       count:1, show:"שבועות יום ירושלים",   status:"done",      morning:true,  notes:"רעות רמת ורבר",    contact:'', phone:'', time:'', team:[] },
+  { id:18, date:"2026-06-14", location:"ראשון לציון",        type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסיבת סוף שנה - ערב",  status:"pending",   morning:false, notes:"מחכה לתשובה ממנשה", contact:'', phone:'', time:'', team:[] },
+  { id:19, date:"2026-06-16", location:"צור הדסה",           type:"חטיבה",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"pending",   morning:false, notes:"",                   contact:'', phone:'', time:'', team:[] },
+  { id:20, date:"2026-06-18", location:"מקיף י ראשלצ",       type:"תיכון",          presenter:"אנחנו",       count:1, show:"מסע ישראלי",            status:"approved",  morning:true,  notes:"מיכל דביר יש הסכם חתום", contact:'', phone:'', time:'', team:[] },
+  { id:21, date:"2026-06-21", location:"חולון",              type:"תיכון צרפתי",    presenter:"אנחנו",       count:2, show:"מסע ישראלי",            status:"open",      morning:true,  notes:"מחכה לתשובה",       contact:'', phone:'', time:'', team:[] },
+  { id:22, date:"2026-06-29", location:"משאבים נגב",         type:"יסודי",          presenter:"אנחנו",       count:2, show:"מסע ישראלי",            status:"signature", morning:true,  notes:"צריכה לקבל חתימה על ההסכם", contact:'', phone:'', time:'', team:[] },
+  { id:23, date:"2026-06-30", location:"ישורון ראשון",       type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"approved",  morning:true,  notes:"דתי",                contact:'', phone:'', time:'', team:[] },
+  { id:24, date:"2026-08-04", location:"מגדל העמק",          type:"ערב מבוגרים",    presenter:"סינייה",      count:1, show:"לאהבה שלי אין סוף",    status:"postponed", morning:false, notes:"קליידן + סקסופון + מצגת + מפעילה — נדחה בגלל המלחמה", contact:'', phone:'', time:'', team:[] },
+  { id:25, date:"2026-09-09", location:"אשקלון",             type:"חטיבה",          presenter:"מנשה אמיר",   count:2, show:"מסע ישראלי",            status:"moved",     morning:true,  notes:"",                   contact:'', phone:'', time:'', team:[] },
+  { id:26, date:"2026-09-14", location:"איתמר - נתניה",      type:"יסודי",          presenter:"מנשה אמיר",   count:1, show:"מסע ישראלי",            status:"",          morning:true,  notes:"היה אמור להתקיים ב20.3.26", contact:'', phone:'', time:'', team:[] },
 ];
 
 init();
@@ -533,10 +679,10 @@ init();
 
 <div id="token-setup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;direction:rtl">
   <div style="background:white;border-radius:20px;padding:24px;max-width:360px;width:90%;margin:0 16px">
-    <h2 style="font-size:18px;font-weight:700;color:#1E3A5F;margin-bottom:8px">🔑 הגדרת חיבור</h2>
-    <p style="font-size:14px;color:#64748B;margin-bottom:16px;line-height:1.6">כדי לשמור שינויים יש להכניס את ה-GitHub Token (פעם אחת בלבד)</p>
-    <input id="token-input" type="password" placeholder="ghp_..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px;direction:ltr">
-    <button onclick="saveToken()" style="width:100%;padding:12px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">שמור וחבר</button>
+    <h2 style="font-size:20px;font-weight:700;color:#1E3A5F;margin-bottom:8px">🔑 הגדרת חיבור</h2>
+    <p style="font-size:15px;color:#64748B;margin-bottom:16px;line-height:1.6">כדי לשמור שינויים יש להכניס את ה-GitHub Token (פעם אחת בלבד)</p>
+    <input id="token-input" type="password" placeholder="ghp_..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:16px;font-family:inherit;margin-bottom:12px;direction:ltr">
+    <button onclick="saveToken()" style="width:100%;padding:13px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">שמור וחבר</button>
   </div>
 </div>
 <script>
@@ -547,13 +693,12 @@ function saveToken() {
   document.getElementById('token-setup').style.display = 'none';
   init();
 }
-// Show setup if no token
 if (!localStorage.getItem('gh_token')) {
   document.getElementById('token-setup').style.display = 'flex';
 }
 </script>
 
-
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
