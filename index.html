@@ -164,6 +164,7 @@
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn-export" onclick="exportExcel()">📊 ייצוא אקסל</button>
+      <button class="btn-export" onclick="openSettings()" title="הגדרות">⚙️</button>
       <button class="btn-add" onclick="openAdd()">➕ מופע חדש</button>
     </div>
   </div>
@@ -267,9 +268,10 @@
 </div>
 
 <script>
-const GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
+let GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
 const GITHUB_REPO  = 'Nunah31/shows-manager';
 const DATA_FILE    = 'shows_data.json';
+let SCRIPT_URL = localStorage.getItem('sheets_script_url') || '';
 
 const BASE_TEAM = [
   'בוריס – הגברה',
@@ -339,6 +341,17 @@ async function saveToGithub() {
     fileSha = d.content?.sha;
     hideSaving();
   } catch(e) { hideSaving(); }
+  // סנכרון לגוגל שיטס (ברקע)
+  syncToSheets();
+}
+
+async function syncToSheets() {
+  if (!SCRIPT_URL) return;
+  try {
+    const formData = new URLSearchParams();
+    formData.append('data', JSON.stringify(shows));
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+  } catch(e) { /* שגיאת רשת — לא קריטי */ }
 }
 
 function showSaving() { const el = document.getElementById('save-indicator'); el.textContent = '💾 שומר...'; el.classList.add('visible'); }
@@ -711,6 +724,7 @@ window.INITIAL_SHOWS = [
 init();
 </script>
 
+<!-- Token setup (first time) -->
 <div id="token-setup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;direction:rtl">
   <div style="background:white;border-radius:20px;padding:24px;max-width:360px;width:90%;margin:0 16px">
     <h2 style="font-size:20px;font-weight:700;color:#1E3A5F;margin-bottom:8px">🔑 הגדרת חיבור</h2>
@@ -719,16 +733,74 @@ init();
     <button onclick="saveToken()" style="width:100%;padding:13px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">שמור וחבר</button>
   </div>
 </div>
+
+<!-- Settings modal -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;direction:rtl">
+  <div style="background:white;border-radius:20px;padding:24px;max-width:400px;width:90%;margin:0 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h2 style="font-size:20px;font-weight:700;color:#1E3A5F">⚙️ הגדרות</h2>
+      <button onclick="closeSettings()" style="background:#F1F5F9;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:20px">✕</button>
+    </div>
+
+    <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:4px">🔑 GitHub Token</label>
+    <input id="settings-token" type="password" placeholder="ghp_..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit;margin-bottom:16px;direction:ltr">
+
+    <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:4px">📊 Google Sheets — Apps Script URL</label>
+    <p style="font-size:13px;color:#6B7280;margin-bottom:6px;line-height:1.5">הכניסי את ה-URL שקיבלת אחרי פרסום ה-Apps Script</p>
+    <input id="settings-script" type="text" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:6px;direction:ltr">
+    <p id="sheets-status" style="font-size:13px;margin-bottom:16px;color:#6B7280"></p>
+
+    <button onclick="saveSettings()" style="width:100%;padding:13px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">💾 שמור</button>
+    <button onclick="testSheets()" style="width:100%;padding:11px;background:#F0FDF4;color:#166534;border:1px solid #86EFAC;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px">🧪 בדוק חיבור לשיטס</button>
+  </div>
+</div>
+
 <script>
 function saveToken() {
   const t = document.getElementById('token-input').value.trim();
   if (!t) return;
   localStorage.setItem('gh_token', t);
+  GITHUB_TOKEN = t;
   document.getElementById('token-setup').style.display = 'none';
   init();
 }
 if (!localStorage.getItem('gh_token')) {
   document.getElementById('token-setup').style.display = 'flex';
+}
+
+function openSettings() {
+  document.getElementById('settings-token').value = localStorage.getItem('gh_token') || '';
+  document.getElementById('settings-script').value = localStorage.getItem('sheets_script_url') || '';
+  document.getElementById('sheets-status').textContent = SCRIPT_URL ? '✅ מחובר לגוגל שיטס' : '⚪ לא מוגדר';
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').style.display = 'none';
+}
+
+function saveSettings() {
+  const token = document.getElementById('settings-token').value.trim();
+  const scriptUrl = document.getElementById('settings-script').value.trim();
+  if (token) { localStorage.setItem('gh_token', token); GITHUB_TOKEN = token; }
+  if (scriptUrl) { localStorage.setItem('sheets_script_url', scriptUrl); SCRIPT_URL = scriptUrl; }
+  closeSettings();
+  // סנכרון מיידי עם הגדרות חדשות
+  if (scriptUrl) syncToSheets();
+}
+
+async function testSheets() {
+  const url = document.getElementById('settings-script').value.trim();
+  if (!url) { document.getElementById('sheets-status').textContent = '⚠️ הכניסי URL קודם'; return; }
+  document.getElementById('sheets-status').textContent = '⏳ בודק...';
+  try {
+    const formData = new URLSearchParams();
+    formData.append('data', JSON.stringify(shows.slice(0, 2)));
+    await fetch(url, { method: 'POST', mode: 'no-cors', body: formData });
+    document.getElementById('sheets-status').textContent = '✅ נשלח! בדקי בגיליון';
+  } catch(e) {
+    document.getElementById('sheets-status').textContent = '❌ שגיאת חיבור';
+  }
 }
 </script>
 
