@@ -350,8 +350,9 @@ async function syncToSheets() {
   try {
     const formData = new URLSearchParams();
     formData.append('data', JSON.stringify(shows));
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
-  } catch(e) { /* שגיאת רשת — לא קריטי */ }
+    // POST פשוט (ללא no-cors) — הבקשה מגיעה לסקריפט גם אם הדפדפן חוסם את התגובה
+    fetch(SCRIPT_URL, { method: 'POST', body: formData }).catch(() => {});
+  } catch(e) {}
 }
 
 function showSaving() { const el = document.getElementById('save-indicator'); el.textContent = '💾 שומר...'; el.classList.add('visible'); }
