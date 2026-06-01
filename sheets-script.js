@@ -1,20 +1,35 @@
 const SHEET_NAME = 'מופעים';
 
 const STATUS_LABELS = {
-  done: 'התקיים', approved: 'מאושר', pending: 'ממתין אישור',
-  open: 'לא סגור', signature: 'ממתין חתימה', postponed: 'נדחה',
-  moved: 'הוזז', cancelled: 'בוטל', '': 'ללא סטטוס'
+  done: 'התקיים',
+  approved: 'מאושר',
+  pending: 'ממתין אישור',
+  open: 'לא סגור',
+  signature: 'ממתין חתימה',
+  postponed: 'נדחה',
+  moved: 'הוזז',
+  cancelled: 'בוטל',
+  '': 'ללא סטטוס'
 };
 
 function doPost(e) {
   try {
-    const shows = JSON.parse(e.parameter.data);
+    let shows;
+    // ניסיון 1: גוף טקסט ישיר (text/plain)
+    if (e.postData && e.postData.contents) {
+      shows = JSON.parse(e.postData.contents);
+    }
+    // ניסיון 2: פרמטר form
+    else if (e.parameter && e.parameter.data) {
+      shows = JSON.parse(e.parameter.data);
+    } else {
+      return buildResponse({ success: false, error: 'no data' });
+    }
+
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
-
     syncSheet(sheet, shows);
-
     return buildResponse({ success: true, count: shows.length });
   } catch (err) {
     return buildResponse({ success: false, error: err.message });
@@ -22,8 +37,7 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // תמיכה בשליחה דרך GET (fallback)
-  if (e.parameter.data) {
+  if (e.parameter && e.parameter.data) {
     try {
       const shows = JSON.parse(e.parameter.data);
       const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -48,7 +62,12 @@ function syncSheet(sheet, shows) {
   sheet.clearContents();
   sheet.setRightToLeft(true);
 
-  const headers = ['תאריך','שעה','מיקום','שם המופע','שכבת גיל','מי מביא','איש קשר','טלפון','מס׳ סבבים','בוקר/ערב','סטטוס','צוות','הערות'];
+  const headers = [
+    'תאריך', 'שעה', 'מיקום', 'שם המופע', 'שכבת גיל',
+    'מי מביא', 'איש קשר', 'טלפון', 'מס׳ סבבים',
+    'בוקר/ערב', 'סטטוס', 'צוות', 'הערות'
+  ];
+
   sheet.appendRow(headers);
 
   const headerRange = sheet.getRange(1, 1, 1, headers.length);
@@ -70,7 +89,7 @@ function syncSheet(sheet, shows) {
     s.morning ? 'בוקר' : 'ערב',
     STATUS_LABELS[s.status] || '',
     s.team ? s.team.join(', ') : '',
-    s.notes || '',
+    s.notes || ''
   ]);
 
   if (rows.length > 0) {
