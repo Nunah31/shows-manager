@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ניהול מופעים</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif; background: #F0F4FF; min-height: 100vh; direction: rtl; font-size: 16px; }
@@ -273,6 +274,11 @@ const GITHUB_REPO  = 'Nunah31/shows-manager';
 const DATA_FILE    = 'shows_data.json';
 let SCRIPT_URL = localStorage.getItem('sheets_script_url') || 'https://script.google.com/macros/s/AKfycbxtBGuEv5qnSdhqOw4roWYtL5n4EoKp5nc9GG-TNs8cos-S1RaMduS0Obg_yvoOA5AY/exec';
 
+const GOOGLE_CLIENT_ID = '445601042786-j4f64beftudtg0nlcdg1kuqp0k08amqo.apps.googleusercontent.com';
+const CALENDAR_SCOPE   = 'https://www.googleapis.com/auth/calendar.events';
+let gAccessToken = null;
+let tokenClient  = null;
+
 const BASE_TEAM = [
   'בוריס – הגברה',
   'דניאל טהאן',
@@ -378,6 +384,115 @@ function syncToSheets() {
 
 function showSaving() { const el = document.getElementById('save-indicator'); el.textContent = '💾 שומר...'; el.classList.add('visible'); }
 function hideSaving() { const el = document.getElementById('save-indicator'); el.textContent = '✅ נשמר!'; setTimeout(() => el.classList.remove('visible'), 1500); }
+
+// ── Google Calendar ──────────────────────────────────────────────────────────
+function initGoogleAuth() {
+  if (!window.google) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: CALENDAR_SCOPE,
+    callback: (resp) => {
+      if (resp.access_token) {
+        gAccessToken = resp.access_token;
+        updateCalendarStatus();
+        render();
+      }
+    }
+  });
+}
+
+function connectGoogle() {
+  if (!tokenClient) { initGoogleAuth(); }
+  if (tokenClient) tokenClient.requestAccessToken();
+}
+
+function updateCalendarStatus() {
+  const el = document.getElementById('calendar-status');
+  if (el) el.textContent = gAccessToken ? '✅ מחובר ליומן גוגל' : '⚪ לא מחובר';
+  const btn = document.getElementById('btn-connect-cal');
+  if (btn) btn.textContent = gAccessToken ? '✅ מחובר' : '🔗 התחבר ליומן גוגל';
+}
+
+function buildCalEvent(show) {
+  const [y,m,day] = show.date.split('-');
+  const pad = x => String(x).padStart(2,'0');
+  let startDT, endDT;
+  if (show.time) {
+    const [hh,mm] = show.time.split(':');
+    const totalMins = parseInt(hh)*60 + parseInt(mm) + Math.max(60, show.count*60);
+    startDT = `${y}-${pad(m)}-${pad(day)}T${hh}:${mm}:00`;
+    endDT   = `${y}-${pad(m)}-${pad(day)}T${pad(Math.floor(totalMins/60))}:${pad(totalMins%60)}:00`;
+  } else {
+    const sh = show.morning ? '09' : '19';
+    startDT = `${y}-${pad(m)}-${pad(day)}T${sh}:00:00`;
+    endDT   = `${y}-${pad(m)}-${pad(day)}T${pad(parseInt(sh)+Math.max(1,show.count))}:00:00`;
+  }
+  const presenter = (show.presenter||'').trim();
+  const wePresent = presenter.toLowerCase() === 'אנחנו' || presenter === '';
+  let titleParts = [];
+  if (show.show) titleParts.push(show.show);
+  if (!wePresent && show.presenter) titleParts.push(show.presenter);
+  if (show.count > 1) titleParts.push(`${show.count} סבבים`);
+  const summary = titleParts.join(' | ') || `מופע - ${show.location}`;
+  let descParts = [];
+  if (show.contact) descParts.push(`איש קשר: ${show.contact}${show.phone?' | '+show.phone:''}`);
+  if (show.team && show.team.length>0) descParts.push(`צוות: ${show.team.join(', ')}`);
+  if (show.type) descParts.push(`קהל: ${show.type}`);
+  if (show.notes) descParts.push(`הערות: ${show.notes}`);
+  return {
+    summary,
+    location: show.location || '',
+    description: descParts.join('\n'),
+    start: { dateTime: startDT, timeZone: 'Asia/Jerusalem' },
+    end:   { dateTime: endDT,   timeZone: 'Asia/Jerusalem' }
+  };
+}
+
+async function syncCalendarEvent(show) {
+  if (!gAccessToken || !show.date) return null;
+  const event = buildCalEvent(show);
+  let url, method;
+  if (show.calEventId) {
+    url    = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${show.calEventId}`;
+    method = 'PUT';
+  } else {
+    url    = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+    method = 'POST';
+  }
+  try {
+    const r = await fetch(url, {
+      method,
+      headers: { 'Authorization': `Bearer ${gAccessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    });
+    const d = await r.json();
+    if (d.id) {
+      const idx = shows.findIndex(s => s.id === show.id);
+      if (idx >= 0 && shows[idx].calEventId !== d.id) {
+        shows[idx].calEventId = d.id;
+        await saveToGithub();
+      }
+      return d.id;
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function handleCalClick(id) {
+  const show = shows.find(s => s.id === id);
+  if (!show) return;
+  if (gAccessToken) {
+    const indicator = document.getElementById('save-indicator');
+    indicator.textContent = '📅 מסנכרן ליומן...';
+    indicator.classList.add('visible');
+    await syncCalendarEvent(show);
+    indicator.textContent = show.calEventId ? '📅 יומן עודכן!' : '📅 נוסף ליומן!';
+    setTimeout(() => indicator.classList.remove('visible'), 2000);
+    render();
+  } else {
+    window.open(buildCalUrl(show), '_blank');
+  }
+}
 
 // ── Rendering ───────────────────────────────────────────────────────────────
 function fmtDate(d) { if(!d) return ''; const [y,m,day]=d.split('-'); return `${day}/${m}/${y.slice(2)}`; }
@@ -500,7 +615,7 @@ function render() {
         </div>
         <div class="card-actions">
           <button class="icon-btn" onclick="openEdit(${show.id})">✏️</button>
-          <a class="icon-btn" href="${buildCalUrl(show)}" target="_blank">📅</a>
+          <button class="icon-btn" onclick="handleCalClick(${show.id})" title="${show.calEventId?'עדכן אירוע ביומן':'הוסף ליומן'}">${show.calEventId?'📅✅':'📅'}</button>
         </div>
       </div>
     </div>`;
@@ -618,16 +733,27 @@ async function saveForm() {
     notes: document.getElementById('f-notes').value.trim(),
     team: [...selectedTeam],
   };
+  let savedId;
   if (editId) {
     const idx = shows.findIndex(s => s.id === editId);
-    if (idx >= 0) shows[idx] = { ...data, id: editId };
+    if (idx >= 0) {
+      const calEventId = shows[idx].calEventId || null;
+      shows[idx] = { ...data, id: editId, calEventId };
+    }
+    savedId = editId;
   } else {
     const newId = shows.length > 0 ? Math.max(...shows.map(s => s.id)) + 1 : 1;
-    shows.push({ ...data, id: newId });
+    shows.push({ ...data, id: newId, calEventId: null });
+    savedId = newId;
   }
   closeModal();
   render();
   await saveToGithub();
+  // עדכון אוטומטי ביומן אם מחוברת
+  if (gAccessToken) {
+    const savedShow = shows.find(s => s.id === savedId);
+    if (savedShow) { await syncCalendarEvent(savedShow); render(); }
+  }
 }
 
 async function deleteShow() {
@@ -712,6 +838,9 @@ async function init() {
     await saveToGithub();
   }
   render();
+  // אתחול Google Auth אחרי טעינת הספרייה
+  if (window.google) { initGoogleAuth(); }
+  else { window.addEventListener('load', () => { if(window.google) initGoogleAuth(); }); }
 }
 
 window.INITIAL_SHOWS = [
@@ -771,6 +900,10 @@ init();
     <p style="font-size:13px;color:#6B7280;margin-bottom:6px;line-height:1.5">הכניסי את ה-URL שקיבלת אחרי פרסום ה-Apps Script</p>
     <input id="settings-script" type="text" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:6px;direction:ltr">
     <p id="sheets-status" style="font-size:13px;margin-bottom:16px;color:#6B7280"></p>
+
+    <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:4px">📅 יומן גוגל</label>
+    <p id="calendar-status" style="font-size:13px;color:#6B7280;margin-bottom:8px">⚪ לא מחובר</p>
+    <button id="btn-connect-cal" onclick="connectGoogle()" style="width:100%;padding:11px;background:#EFF6FF;color:#1E40AF;border:1px solid #93C5FD;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px">🔗 התחבר ליומן גוגל</button>
 
     <button onclick="saveSettings()" style="width:100%;padding:13px;background:#2563EB;color:white;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">💾 שמור</button>
     <button onclick="testSheets()" style="width:100%;padding:11px;background:#F0FDF4;color:#166534;border:1px solid #86EFAC;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px">🧪 בדוק חיבור לשיטס</button>
