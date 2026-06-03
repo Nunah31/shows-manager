@@ -232,11 +232,16 @@
     "show": "מסע ישראלי",
     "type": "חטיבה",
     "presenter": "מנשה אמיר",
+    "contact": "יעל שגיא רכזת",
+    "phone": "054-4630521",
+    "time": "12:00",
     "count": 1,
     "status": "approved",
     "morning": true,
-    "notes": "",
-    "id": 19
+    "notes": "רונית הזמכירה - תקבל את הצוות - 054-6540561",
+    "team": [],
+    "id": 19,
+    "calEventId": null
   },
   {
     "id": 20,
