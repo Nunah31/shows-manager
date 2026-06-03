@@ -749,10 +749,10 @@ async function saveForm() {
   closeModal();
   render();
   await saveToGithub();
-  // עדכון אוטומטי ביומן אם מחוברת
+  // עדכון אוטומטי ביומן — רק אם האירוע כבר קיים ביומן
   if (gAccessToken) {
     const savedShow = shows.find(s => s.id === savedId);
-    if (savedShow) { await syncCalendarEvent(savedShow); render(); }
+    if (savedShow && savedShow.calEventId) { await syncCalendarEvent(savedShow); render(); }
   }
 }
 
