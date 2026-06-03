@@ -256,16 +256,21 @@
     "notes": "מיכל דביר יש הסכם חתום"
   },
   {
-    "id": 21,
     "date": "2026-06-21",
     "location": "חולון",
+    "show": "מסע ישראלי",
     "type": "תיכון צרפתי",
     "presenter": "אנחנו",
+    "contact": "",
+    "phone": "",
+    "time": "",
     "count": 2,
-    "show": "מסע ישראלי",
-    "status": "open",
+    "status": "cancelled",
     "morning": true,
-    "notes": "מחכה לתשובה"
+    "notes": "מחכה לתשובה",
+    "team": [],
+    "id": 21,
+    "calEventId": null
   },
   {
     "date": "2026-06-28",
