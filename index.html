@@ -392,6 +392,7 @@ function initGoogleAuth() {
     client_id: GOOGLE_CLIENT_ID,
     scope: CALENDAR_SCOPE,
     login_hint: 'udiest@gmail.com',
+    prompt: 'select_account',
     callback: (resp) => {
       if (resp.access_token) {
         gAccessToken = resp.access_token;
