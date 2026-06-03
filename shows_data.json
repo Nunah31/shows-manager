@@ -248,16 +248,27 @@
     "calEventId": null
   },
   {
-    "id": 20,
     "date": "2026-06-18",
     "location": "מקיף י ראשלצ",
+    "show": "מסע ישראלי",
     "type": "תיכון",
     "presenter": "אנחנו",
+    "contact": "",
+    "phone": "",
+    "time": "",
     "count": 1,
-    "show": "מסע ישראלי",
     "status": "approved",
     "morning": true,
-    "notes": "מיכל דביר יש הסכם חתום"
+    "notes": "מיכל דביר יש הסכם חתום",
+    "team": [
+      "בוריס – הגברה",
+      "שי ברק",
+      "עמית כהן",
+      "גיל סמואל",
+      "ניב רז"
+    ],
+    "id": 20,
+    "calEventId": null
   },
   {
     "date": "2026-06-21",
