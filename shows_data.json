@@ -239,9 +239,7 @@
     "status": "approved",
     "morning": true,
     "notes": "רונית הזמכירה - תקבל את הצוות - 054-6540561",
-    "team": [
-      "בוריס – הגברה"
-    ],
+    "team": [],
     "id": 19,
     "calEventId": null
   },
