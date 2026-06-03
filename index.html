@@ -453,27 +453,35 @@ function buildCalEvent(show) {
 async function syncCalendarEvent(show) {
   if (!gAccessToken || !show.date) return null;
   const event = buildCalEvent(show);
-  let url, method;
+  const idx = shows.findIndex(s => s.id === show.id);
+
+  // נסה לעדכן אירוע קיים
   if (show.calEventId) {
-    url    = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${show.calEventId}`;
-    method = 'PUT';
-  } else {
-    url    = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
-    method = 'POST';
-  }
-  try {
-    const r = await fetch(url, {
-      method,
-      headers: { 'Authorization': `Bearer ${gAccessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(event)
-    });
-    const d = await r.json();
-    if (d.id) {
-      const idx = shows.findIndex(s => s.id === show.id);
-      if (idx >= 0 && shows[idx].calEventId !== d.id) {
-        shows[idx].calEventId = d.id;
-        await saveToGithub();
+    try {
+      const r = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${show.calEventId}`,
+        { method: 'PUT', headers: { 'Authorization': `Bearer ${gAccessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(event) }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        return d.id; // עדכון הצליח
       }
+      // אם 404/410 — האירוע נמחק, ניצור חדש
+      if (r.status !== 404 && r.status !== 410) return null;
+      if (idx >= 0) shows[idx].calEventId = null; // נקה ID ישן
+    } catch(e) { return null; }
+  }
+
+  // צור אירוע חדש
+  try {
+    const r = await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      { method: 'POST', headers: { 'Authorization': `Bearer ${gAccessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(event) }
+    );
+    const d = await r.json();
+    if (d.id && idx >= 0) {
+      shows[idx].calEventId = d.id;
+      await saveToGithub();
       return d.id;
     }
   } catch(e) {}
