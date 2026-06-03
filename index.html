@@ -391,6 +391,7 @@ function initGoogleAuth() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: CALENDAR_SCOPE,
+    login_hint: 'udiest@gmail.com',
     callback: (resp) => {
       if (resp.access_token) {
         gAccessToken = resp.access_token;
