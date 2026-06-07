@@ -392,5 +392,22 @@
     ],
     "id": 26,
     "calEventId": null
+  },
+  {
+    "date": "2026-06-30",
+    "location": "הרצליה",
+    "show": "מופע קונספט למורים",
+    "type": "מבוגרים",
+    "presenter": "מנשה אמיר",
+    "contact": "",
+    "phone": "",
+    "time": "14:30",
+    "count": 1,
+    "status": "open",
+    "morning": true,
+    "notes": "מופע צהריים",
+    "team": [],
+    "id": 27,
+    "calEventId": null
   }
 ]
