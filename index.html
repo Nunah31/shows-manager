@@ -210,6 +210,7 @@
     <div class="form-grid">
       <div class="field"><label>תאריך *</label><input type="date" id="f-date"></div>
       <div class="field"><label>שעת התחלה</label><input type="time" id="f-time" placeholder="לא חובה"></div>
+      <div class="field"><label>⚡ שעת בלאנס</label><input type="time" id="f-balance" placeholder="לא חובה"></div>
       <div class="field"><label>מספר סבבים</label><input type="number" id="f-count" min="1" max="10" value="1"></div>
       <div class="field"><label>סטטוס</label>
         <select id="f-status">
@@ -262,12 +263,23 @@
     <h2 style="font-size:20px;font-weight:700" id="send-title">📤 שליחה לנגנים</h2>
   </div>
   <div class="send-body">
+    <!-- בחירת סוג הודעה -->
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button id="msg-tab-avail" onclick="switchMsgTab('avail')"
+        style="flex:1;padding:9px;border-radius:9px;border:2px solid #1E3A5F;background:#1E3A5F;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+        ✅ זמינות
+      </button>
+      <button id="msg-tab-balance" onclick="switchMsgTab('balance')"
+        style="flex:1;padding:9px;border-radius:9px;border:2px solid #D1D5DB;background:#fff;color:#374151;font-size:14px;font-weight:700;cursor:pointer">
+        ⚡ בלאנס
+      </button>
+    </div>
     <div class="msg-preview" id="msg-preview"></div>
     <div class="send-btns">
       <button class="btn-copy" id="btn-copy" onclick="copyMsg()">📋 העתק</button>
       <a class="btn-wa" id="btn-wa" href="#" target="_blank">💬 וואטסאפ</a>
     </div>
-    <div id="team-wa-section" style="margin-top:18px;display:none">
+    <div id="team-wa-section" style="margin-top:18px">
       <p style="font-size:15px;font-weight:600;color:#1E3A5F;margin-bottom:10px">📲 שלח ישירות לנגן:</p>
       <div id="team-wa-list" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
@@ -711,7 +723,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = '➕ מופע חדש';
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
-  ['f-date','f-time','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-date','f-time','f-balance','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -730,6 +742,7 @@ function openEdit(id) {
   document.getElementById('btn-delete').style.display = '';
   document.getElementById('f-date').value = show.date;
   document.getElementById('f-time').value = show.time || '';
+  document.getElementById('f-balance').value = show.balanceTime || '';
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-show').value = show.show || '';
   document.getElementById('f-type').value = show.type || '';
@@ -769,6 +782,7 @@ async function saveForm() {
     contact: document.getElementById('f-contact').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     time: document.getElementById('f-time').value || '',
+    balanceTime: document.getElementById('f-balance').value || '',
     count: parseInt(document.getElementById('f-count').value) || 1,
     status: document.getElementById('f-status').value,
     morning: formMorning,
@@ -828,37 +842,66 @@ function buildMsg() {
   return lines.join('\n');
 }
 
-function openSend() {
-  const msg = buildMsg();
-  document.getElementById('msg-preview').textContent = msg;
-  document.getElementById('send-title').textContent = `📤 שליחה לנגנים (${selected.size})`;
-  document.getElementById('btn-wa').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-
-  // בנה רשימת נגנים עם טלפון
-  const selShows = shows.filter(s => selected.has(s.id));
-  const allTeam = new Set();
-  selShows.forEach(s => (s.team||[]).forEach(n => allTeam.add(n)));
-
-  const withPhone = [...allTeam].filter(n => teamPhones[n]);
-  const section = document.getElementById('team-wa-section');
-  const list = document.getElementById('team-wa-list');
-
-  if (withPhone.length > 0) {
-    list.innerHTML = withPhone.map(name => {
-      const phone = teamPhones[name].replace(/\D/g,'');
-      const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
-      const waUrl = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
-      return `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;text-decoration:none;color:#166534;font-size:15px;font-weight:600">
-        <span style="font-size:20px">💬</span>
-        <span style="flex:1">${name}</span>
-        <span style="font-size:13px;color:#4ADE80">${teamPhones[name]}</span>
-      </a>`;
-    }).join('');
-    section.style.display = '';
-  } else {
-    section.style.display = 'none';
+function buildBalanceMsg() {
+  const sel = shows.filter(s => selected.has(s.id)).sort((a,b) => a.date.localeCompare(b.date));
+  if (sel.length === 0) return '';
+  if (sel.length === 1) {
+    const s = sel[0];
+    const balStr = s.balanceTime ? `, שעת בלאנס ${s.balanceTime}` : '';
+    return `היי אחי,\n${fmtDate(s.date)} ${s.location}${balStr}`;
   }
+  const lines = ['היי אחי 🙂', ''];
+  sel.forEach(s => {
+    const balStr = s.balanceTime ? ` · בלאנס ${s.balanceTime}` : '';
+    lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${balStr}`);
+  });
+  return lines.join('\n');
+}
 
+let currentMsgTab = 'avail';
+
+function switchMsgTab(tab) {
+  currentMsgTab = tab;
+  // עדכון כפתורים
+  document.getElementById('msg-tab-avail').style.background   = tab === 'avail'   ? '#1E3A5F' : '#fff';
+  document.getElementById('msg-tab-avail').style.color        = tab === 'avail'   ? '#fff'    : '#374151';
+  document.getElementById('msg-tab-avail').style.borderColor  = tab === 'avail'   ? '#1E3A5F' : '#D1D5DB';
+  document.getElementById('msg-tab-balance').style.background = tab === 'balance' ? '#1E3A5F' : '#fff';
+  document.getElementById('msg-tab-balance').style.color      = tab === 'balance' ? '#fff'    : '#374151';
+  document.getElementById('msg-tab-balance').style.borderColor= tab === 'balance' ? '#1E3A5F' : '#D1D5DB';
+  // עדכון הודעה וכפתורי שליחה
+  const msg = tab === 'balance' ? buildBalanceMsg() : buildMsg();
+  document.getElementById('msg-preview').textContent = msg;
+  document.getElementById('btn-wa').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  refreshTeamList(msg);
+}
+
+function refreshTeamList(msg) {
+  // כל הנגנים שיש להם טלפון (כולל custom שנוספו לאירוע)
+  const selShows = shows.filter(s => selected.has(s.id));
+  const customInShows = new Set();
+  selShows.forEach(s => (s.team||[]).forEach(n => { if (!BASE_TEAM.includes(n)) customInShows.add(n); }));
+  const allNames = [...BASE_TEAM, ...customInShows];
+  const withPhone = allNames.filter(n => teamPhones[n]);
+
+  const list = document.getElementById('team-wa-list');
+  list.innerHTML = withPhone.map(name => {
+    const phone = teamPhones[name].replace(/\D/g,'');
+    const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+    const waUrl = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
+    return `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;text-decoration:none;color:#166534;font-size:15px;font-weight:600">
+      <span style="font-size:20px">💬</span>
+      <span style="flex:1">${name}</span>
+      <span style="font-size:13px;color:#4ADE80">${teamPhones[name]}</span>
+    </a>`;
+  }).join('');
+  document.getElementById('team-wa-section').style.display = withPhone.length > 0 ? '' : 'none';
+}
+
+function openSend() {
+  currentMsgTab = 'avail';
+  document.getElementById('send-title').textContent = `📤 שליחה לנגנים (${selected.size})`;
+  switchMsgTab('avail');
   pushModalState('send');
   document.getElementById('send-panel').classList.add('open');
 }
