@@ -225,6 +225,7 @@
         </select>
       </div>
       <div class="field form-full"><label>מיקום *</label><input type="text" id="f-location" placeholder="עיר / מוסד"></div>
+      <div class="field form-full"><label>📍 כתובת מדויקת</label><input type="text" id="f-address" placeholder="רחוב, עיר..."></div>
       <div class="field form-full"><label>שם המופע / תוכנית</label><input type="text" id="f-show" placeholder="מסע ישראלי / לאהבה שלי אין סוף..."></div>
       <div class="field"><label>שכבת גיל / קהל</label><input type="text" id="f-type" placeholder="יסודי / תיכון..."></div>
       <div class="field"><label>מי מביא</label><input type="text" id="f-presenter" placeholder="מנשה / אנחנו..."></div>
@@ -733,7 +734,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = '➕ מופע חדש';
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
-  ['f-date','f-time','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -753,6 +754,7 @@ function openEdit(id) {
   document.getElementById('f-date').value = show.date;
   document.getElementById('f-time').value = show.time || '';
   document.getElementById('f-location').value = show.location;
+  document.getElementById('f-address').value = show.address || '';
   document.getElementById('f-show').value = show.show || '';
   document.getElementById('f-type').value = show.type || '';
   document.getElementById('f-presenter').value = show.presenter || '';
@@ -791,6 +793,7 @@ async function saveForm() {
     contact: document.getElementById('f-contact').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     time: document.getElementById('f-time').value || '',
+    address: document.getElementById('f-address').value.trim(),
     count: parseInt(document.getElementById('f-count').value) || 1,
     status: document.getElementById('f-status').value,
     morning: formMorning,
@@ -865,14 +868,16 @@ function buildBalanceMsg() {
   if (sel.length === 1) {
     const s = sel[0];
     const bal = calcBalance(s.time);
-    const balStr = bal ? `, שעת בלאנס ${bal}` : '';
-    return `היי אחי,\n${fmtDate(s.date)} ${s.location}${balStr}`;
+    const balStr = bal ? `\nשעת בלאנס: ${bal}` : '';
+    const addrStr = s.address ? `\nכתובת: ${s.address}` : '';
+    return `היי אחי,\n${fmtDate(s.date)} ${s.location}${balStr}${addrStr}`;
   }
   const lines = ['היי אחי 🙂', ''];
   sel.forEach(s => {
     const bal = calcBalance(s.time);
     const balStr = bal ? ` · בלאנס ${bal}` : '';
-    lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${balStr}`);
+    const addrStr = s.address ? `\n   📍 ${s.address}` : '';
+    lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${balStr}${addrStr}`);
   });
   return lines.join('\n');
 }
