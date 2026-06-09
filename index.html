@@ -347,14 +347,24 @@ async function loadFromGithub() {
     const binary = atob(d.content.replace(/\n/g,''));
     const bytes = new Uint8Array(binary.length);
     for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    shows = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    const parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    // תמיכה בפורמט ישן (מערך) וחדש (אובייקט עם shows + teamPhones)
+    if (Array.isArray(parsed)) {
+      shows = parsed;
+    } else {
+      shows = parsed.shows || [];
+      if (parsed.teamPhones) {
+        teamPhones = parsed.teamPhones;
+        localStorage.setItem('team_phones', JSON.stringify(teamPhones));
+      }
+    }
     return true;
   } catch(e) { return false; }
 }
 
 async function saveToGithub() {
   showSaving();
-  const jsonStr = JSON.stringify(shows, null, 2);
+  const jsonStr = JSON.stringify({ shows, teamPhones }, null, 2);
   const bytes2 = new TextEncoder().encode(jsonStr);
   let binary2 = '';
   bytes2.forEach(b => binary2 += String.fromCharCode(b));
@@ -1031,6 +1041,8 @@ function saveSettings() {
 
   closeSettings();
   if (scriptUrl) syncToSheets();
+  // שמירת טלפונים לגיטהאב כדי שלא יאבדו
+  saveToGithub();
 }
 
 async function testSheets() {
