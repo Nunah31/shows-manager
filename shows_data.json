@@ -423,7 +423,10 @@
     "status": "approved",
     "morning": true,
     "notes": "",
-    "team": [],
+    "team": [
+      "סקסופון – עמירם גרנות צפון",
+      "עמית כהן"
+    ],
     "id": 28,
     "calEventId": null
   }
