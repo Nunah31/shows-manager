@@ -779,9 +779,17 @@ async function deleteShow() {
 // ── Send ────────────────────────────────────────────────────────────────────
 function buildMsg() {
   const sel = shows.filter(s => selected.has(s.id)).sort((a,b) => a.date.localeCompare(b.date));
+
+  // הודעה קצרה להופעה אחת
+  if (sel.length === 1) {
+    const s = sel[0];
+    const timeStr = s.morning ? 'בוקר' : 'ערב';
+    return `היי אחי,\n${fmtDate(s.date)} ${timeStr}, פנוי?`;
+  }
+
+  // הודעה מלאה לכמה הופעות
   const lines = ['היי אחי 🙂', 'להלן התאריכים הקרובים:', ''];
   sel.forEach(s => {
-    // Count: if 1 — nothing; if more — bold (WhatsApp bold = *text*)
     const countStr = s.count > 1 ? ` · *${s.count} סבבים*` : '';
     lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${s.type?` (${s.type})`:''}${countStr} · ${s.morning?'בוקר':'ערב'}`);
     if (['open','pending',''].includes(s.status)) lines.push('   ⚠️ תאריך זה עדיין לא סגור סופית');
