@@ -26,11 +26,13 @@
 
   .main { max-width: 640px; margin: 0 auto; padding: 14px 12px 80px; }
 
-  .filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .sticky-bar { position: sticky; top: 74px; z-index: 90; background: #F0F4FF; padding: 10px 0 4px; margin-bottom: 4px; }
+
+  .filters { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
   .filter-btn { padding: 7px 14px; border-radius: 20px; border: none; cursor: pointer; font-size: 15px; font-family: inherit; background: #E2E8F0; color: #374151; transition: all 0.15s; }
   .filter-btn.active { background: #2563EB; color: white; font-weight: 600; }
 
-  .toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
   .btn-sm { padding: 7px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit; }
   .btn-outline-blue { background: white; border: 1px solid #2563EB; color: #2563EB; }
   .btn-outline-red  { background: white; border: 1px solid #EF4444; color: #EF4444; }
@@ -172,22 +174,22 @@
 </div>
 
 <div class="main">
-  <!-- Filters -->
-  <div class="filters" id="filters">
-    <button class="filter-btn active" data-filter="future" onclick="setFilter(this,'future')">עתידיים</button>
-    <button class="filter-btn" data-filter="past" onclick="setFilter(this,'past')">עבר</button>
-    <button class="filter-btn" data-filter="open" onclick="setFilter(this,'open')">לא סגורים ❓</button>
-    <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">מאושרים</button>
-    <button class="filter-btn" data-filter="morning" onclick="setFilter(this,'morning')">בוקר ☀️</button>
-    <button class="filter-btn" data-filter="evening" onclick="setFilter(this,'evening')">ערב 🌙</button>
-    <button class="filter-btn" data-filter="all" onclick="setFilter(this,'all')">הכל</button>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <button class="btn-sm btn-outline-blue" onclick="selectAll()">בחר הכל</button>
-    <button class="btn-sm btn-outline-red" id="btn-clear" style="display:none" onclick="clearSel()">נקה בחירה</button>
-    <button class="btn-sm btn-solid-blue" id="btn-send" style="display:none" onclick="openSend()">📤 שלח לנגנים</button>
+  <!-- Filters + Toolbar (sticky) -->
+  <div class="sticky-bar">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="future" onclick="setFilter(this,'future')">עתידיים</button>
+      <button class="filter-btn" data-filter="past" onclick="setFilter(this,'past')">עבר</button>
+      <button class="filter-btn" data-filter="open" onclick="setFilter(this,'open')">לא סגורים ❓</button>
+      <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">מאושרים</button>
+      <button class="filter-btn" data-filter="morning" onclick="setFilter(this,'morning')">בוקר ☀️</button>
+      <button class="filter-btn" data-filter="evening" onclick="setFilter(this,'evening')">ערב 🌙</button>
+      <button class="filter-btn" data-filter="all" onclick="setFilter(this,'all')">הכל</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn-sm btn-outline-blue" onclick="selectAll()">בחר הכל</button>
+      <button class="btn-sm btn-outline-red" id="btn-clear" style="display:none" onclick="clearSel()">נקה בחירה</button>
+      <button class="btn-sm btn-solid-blue" id="btn-send" style="display:none" onclick="openSend()">📤 שלח לנגנים</button>
+    </div>
   </div>
 
   <!-- List -->
