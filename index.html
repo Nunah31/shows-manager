@@ -210,7 +210,6 @@
     <div class="form-grid">
       <div class="field"><label>תאריך *</label><input type="date" id="f-date"></div>
       <div class="field"><label>שעת התחלה</label><input type="time" id="f-time" placeholder="לא חובה"></div>
-      <div class="field"><label>⚡ שעת בלאנס</label><input type="time" id="f-balance" placeholder="לא חובה"></div>
       <div class="field"><label>מספר סבבים</label><input type="number" id="f-count" min="1" max="10" value="1"></div>
       <div class="field"><label>סטטוס</label>
         <select id="f-status">
@@ -723,7 +722,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = '➕ מופע חדש';
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
-  ['f-date','f-time','f-balance','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-date','f-time','f-location','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -742,7 +741,6 @@ function openEdit(id) {
   document.getElementById('btn-delete').style.display = '';
   document.getElementById('f-date').value = show.date;
   document.getElementById('f-time').value = show.time || '';
-  document.getElementById('f-balance').value = show.balanceTime || '';
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-show').value = show.show || '';
   document.getElementById('f-type').value = show.type || '';
@@ -782,7 +780,6 @@ async function saveForm() {
     contact: document.getElementById('f-contact').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     time: document.getElementById('f-time').value || '',
-    balanceTime: document.getElementById('f-balance').value || '',
     count: parseInt(document.getElementById('f-count').value) || 1,
     status: document.getElementById('f-status').value,
     morning: formMorning,
@@ -842,17 +839,28 @@ function buildMsg() {
   return lines.join('\n');
 }
 
+function calcBalance(timeStr) {
+  if (!timeStr) return '';
+  const [hh, mm] = timeStr.split(':').map(Number);
+  const total = hh * 60 + mm - 60;
+  const bh = Math.floor(((total % 1440) + 1440) % 1440 / 60);
+  const bm = ((total % 1440) + 1440) % 1440 % 60;
+  return `${String(bh).padStart(2,'0')}:${String(bm).padStart(2,'0')}`;
+}
+
 function buildBalanceMsg() {
   const sel = shows.filter(s => selected.has(s.id)).sort((a,b) => a.date.localeCompare(b.date));
   if (sel.length === 0) return '';
   if (sel.length === 1) {
     const s = sel[0];
-    const balStr = s.balanceTime ? `, שעת בלאנס ${s.balanceTime}` : '';
+    const bal = calcBalance(s.time);
+    const balStr = bal ? `, שעת בלאנס ${bal}` : '';
     return `היי אחי,\n${fmtDate(s.date)} ${s.location}${balStr}`;
   }
   const lines = ['היי אחי 🙂', ''];
   sel.forEach(s => {
-    const balStr = s.balanceTime ? ` · בלאנס ${s.balanceTime}` : '';
+    const bal = calcBalance(s.time);
+    const balStr = bal ? ` · בלאנס ${bal}` : '';
     lines.push(`📅 ${fmtDate(s.date)} — ${s.location}${balStr}`);
   });
   return lines.join('\n');
