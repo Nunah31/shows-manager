@@ -409,5 +409,22 @@
     "team": [],
     "id": 27,
     "calEventId": null
+  },
+  {
+    "date": "2026-06-29",
+    "location": "בית ספר בגין - נהריה",
+    "show": "מסע ישראלי",
+    "type": "יסודי",
+    "presenter": "מנשה אמיר",
+    "contact": "",
+    "phone": "",
+    "time": "10:15",
+    "count": 1,
+    "status": "approved",
+    "morning": true,
+    "notes": "",
+    "team": [],
+    "id": 28,
+    "calEventId": null
   }
 ]
