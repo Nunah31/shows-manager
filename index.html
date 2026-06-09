@@ -746,6 +746,7 @@ function openEdit(id) {
   customMembers = savedTeam.filter(n => !BASE_TEAM.includes(n));
   renderTeamList();
   document.getElementById('modal').classList.add('open');
+  pushModalState('modal');
 }
 
 function setMorning(val) {
@@ -858,6 +859,7 @@ function openSend() {
     section.style.display = 'none';
   }
 
+  pushModalState('send');
   document.getElementById('send-panel').classList.add('open');
 }
 function closeSend() { document.getElementById('send-panel').classList.remove('open'); }
@@ -917,6 +919,24 @@ async function init() {
   if (window.google) { initGoogleAuth(); }
   else { window.addEventListener('load', () => { if(window.google) initGoogleAuth(); }); }
 }
+
+// ── כפתור חזרה בנייד ────────────────────────────────────────────────────────
+function pushModalState(name) {
+  history.pushState({ modal: name }, '');
+}
+
+window.addEventListener('popstate', (e) => {
+  // סגור כל מסך פתוח בלחיצת חזרה
+  if (document.getElementById('send-panel').classList.contains('open')) {
+    closeSend(); return;
+  }
+  if (document.getElementById('modal').classList.contains('open')) {
+    closeModal(); return;
+  }
+  if (document.getElementById('settings-modal').style.display === 'flex') {
+    closeSettings(); return;
+  }
+});
 
 window.INITIAL_SHOWS = [
   { id:1,  date:"2025-11-20", location:"ירושלים",             type:"ערב חיילים",     presenter:"אנחנו",       count:1, show:"צבא",                  status:"done",      morning:false, notes:"2 נגנים",            contact:'', phone:'', time:'', team:[] },
@@ -1017,6 +1037,7 @@ function openSettings() {
         style="width:140px;padding:6px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;font-family:inherit">
     </div>`).join('');
 
+  pushModalState('settings');
   document.getElementById('settings-modal').style.display = 'flex';
 }
 
