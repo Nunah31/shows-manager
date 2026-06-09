@@ -273,14 +273,25 @@
         ⚡ בלאנס
       </button>
     </div>
+    <!-- תצוגת הודעה + העתק -->
     <div class="msg-preview" id="msg-preview"></div>
-    <div class="send-btns">
-      <button class="btn-copy" id="btn-copy" onclick="copyMsg()">📋 העתק</button>
-      <a class="btn-wa" id="btn-wa" href="#" target="_blank">💬 וואטסאפ</a>
+    <div style="margin-top:10px">
+      <button class="btn-copy" id="btn-copy" onclick="copyMsg()" style="width:100%;padding:11px;border-radius:10px">📋 העתק הודעה</button>
     </div>
+    <!-- רשימת נגנים עם V -->
     <div id="team-wa-section" style="margin-top:18px">
-      <p style="font-size:15px;font-weight:600;color:#1E3A5F;margin-bottom:10px">📲 שלח ישירות לנגן:</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <p style="font-size:15px;font-weight:600;color:#1E3A5F;margin:0">📲 בחר נגנים לשליחה:</p>
+        <button id="btn-select-all" onclick="toggleSelectAllSend()"
+          style="font-size:13px;padding:5px 12px;border-radius:7px;border:1px solid #1E3A5F;background:#fff;color:#1E3A5F;cursor:pointer;font-weight:600">
+          בחר הכל
+        </button>
+      </div>
       <div id="team-wa-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button id="btn-send-all" onclick="sendToSelected()"
+        style="margin-top:14px;width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;display:none">
+        📤 שלח לנבחרים
+      </button>
     </div>
   </div>
 </div>
@@ -867,47 +878,105 @@ function buildBalanceMsg() {
 }
 
 let currentMsgTab = 'avail';
+let sendSelected = new Set(); // נגנים שנבחרו לשליחה
 
 function switchMsgTab(tab) {
   currentMsgTab = tab;
+  sendSelected = new Set();
   // עדכון כפתורים
-  document.getElementById('msg-tab-avail').style.background   = tab === 'avail'   ? '#1E3A5F' : '#fff';
-  document.getElementById('msg-tab-avail').style.color        = tab === 'avail'   ? '#fff'    : '#374151';
-  document.getElementById('msg-tab-avail').style.borderColor  = tab === 'avail'   ? '#1E3A5F' : '#D1D5DB';
-  document.getElementById('msg-tab-balance').style.background = tab === 'balance' ? '#1E3A5F' : '#fff';
-  document.getElementById('msg-tab-balance').style.color      = tab === 'balance' ? '#fff'    : '#374151';
-  document.getElementById('msg-tab-balance').style.borderColor= tab === 'balance' ? '#1E3A5F' : '#D1D5DB';
-  // עדכון הודעה וכפתורי שליחה
+  document.getElementById('msg-tab-avail').style.background    = tab === 'avail'   ? '#1E3A5F' : '#fff';
+  document.getElementById('msg-tab-avail').style.color         = tab === 'avail'   ? '#fff'    : '#374151';
+  document.getElementById('msg-tab-avail').style.borderColor   = tab === 'avail'   ? '#1E3A5F' : '#D1D5DB';
+  document.getElementById('msg-tab-balance').style.background  = tab === 'balance' ? '#1E3A5F' : '#fff';
+  document.getElementById('msg-tab-balance').style.color       = tab === 'balance' ? '#fff'    : '#374151';
+  document.getElementById('msg-tab-balance').style.borderColor = tab === 'balance' ? '#1E3A5F' : '#D1D5DB';
   const msg = tab === 'balance' ? buildBalanceMsg() : buildMsg();
   document.getElementById('msg-preview').textContent = msg;
-  document.getElementById('btn-wa').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  refreshTeamList(msg);
+  refreshTeamList(msg, tab);
 }
 
-function refreshTeamList(msg) {
-  // כל הנגנים שיש להם טלפון (כולל custom שנוספו לאירוע)
+function getTeamForTab(tab) {
   const selShows = shows.filter(s => selected.has(s.id));
-  const customInShows = new Set();
-  selShows.forEach(s => (s.team||[]).forEach(n => { if (!BASE_TEAM.includes(n)) customInShows.add(n); }));
-  const allNames = [...BASE_TEAM, ...customInShows];
-  const withPhone = allNames.filter(n => teamPhones[n]);
+  if (tab === 'balance') {
+    // רק נגנים שהוספתי למופע ויש להם טלפון
+    const inShow = new Set();
+    selShows.forEach(s => (s.team||[]).forEach(n => inShow.add(n)));
+    return [...inShow].filter(n => teamPhones[n]);
+  } else {
+    // כל הנגנים שיש להם טלפון
+    const customInShows = new Set();
+    selShows.forEach(s => (s.team||[]).forEach(n => { if (!BASE_TEAM.includes(n)) customInShows.add(n); }));
+    return [...BASE_TEAM, ...customInShows].filter(n => teamPhones[n]);
+  }
+}
 
+function refreshTeamList(msg, tab) {
+  const names = getTeamForTab(tab);
   const list = document.getElementById('team-wa-list');
-  list.innerHTML = withPhone.map(name => {
+
+  list.innerHTML = names.map(name => {
+    const checked = sendSelected.has(name);
+    return `<div onclick="toggleSendMember('${name.replace(/'/g,"\\'")}', this)"
+      style="display:flex;align-items:center;gap:12px;padding:11px 14px;
+             background:${checked ? '#DCFCE7' : '#F9FAFB'};
+             border:2px solid ${checked ? '#22C55E' : '#E5E7EB'};
+             border-radius:10px;cursor:pointer;transition:all .15s">
+      <div style="width:24px;height:24px;border-radius:6px;border:2px solid ${checked ? '#22C55E' : '#9CA3AF'};
+                  background:${checked ? '#22C55E' : '#fff'};display:flex;align-items:center;justify-content:center;
+                  font-size:15px;color:#fff;flex-shrink:0">${checked ? '✓' : ''}</div>
+      <span style="flex:1;font-size:15px;font-weight:600;color:#1E3A5F">${name}</span>
+      <span style="font-size:13px;color:#6B7280">${teamPhones[name]}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('team-wa-section').style.display = names.length > 0 ? '' : 'none';
+  updateSendBtn();
+}
+
+function toggleSendMember(name, el) {
+  if (sendSelected.has(name)) sendSelected.delete(name);
+  else sendSelected.add(name);
+  const checked = sendSelected.has(name);
+  el.style.background = checked ? '#DCFCE7' : '#F9FAFB';
+  el.style.borderColor = checked ? '#22C55E' : '#E5E7EB';
+  const box = el.querySelector('div');
+  box.style.borderColor = checked ? '#22C55E' : '#9CA3AF';
+  box.style.background  = checked ? '#22C55E' : '#fff';
+  box.textContent = checked ? '✓' : '';
+  updateSendBtn();
+}
+
+function toggleSelectAllSend() {
+  const msg = currentMsgTab === 'balance' ? buildBalanceMsg() : buildMsg();
+  const names = getTeamForTab(currentMsgTab);
+  const allSelected = names.every(n => sendSelected.has(n));
+  if (allSelected) sendSelected.clear();
+  else names.forEach(n => sendSelected.add(n));
+  document.getElementById('btn-select-all').textContent = allSelected ? 'בחר הכל' : 'בטל הכל';
+  refreshTeamList(msg, currentMsgTab);
+}
+
+function updateSendBtn() {
+  const btn = document.getElementById('btn-send-all');
+  const n = sendSelected.size;
+  btn.style.display = n > 0 ? '' : 'none';
+  btn.textContent = `📤 שלח ל-${n} נגנים`;
+}
+
+function sendToSelected() {
+  const msg = currentMsgTab === 'balance' ? buildBalanceMsg() : buildMsg();
+  const names = [...sendSelected];
+  names.forEach((name, i) => {
     const phone = teamPhones[name].replace(/\D/g,'');
     const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
-    const waUrl = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
-    return `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;text-decoration:none;color:#166534;font-size:15px;font-weight:600">
-      <span style="font-size:20px">💬</span>
-      <span style="flex:1">${name}</span>
-      <span style="font-size:13px;color:#4ADE80">${teamPhones[name]}</span>
-    </a>`;
-  }).join('');
-  document.getElementById('team-wa-section').style.display = withPhone.length > 0 ? '' : 'none';
+    const url = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
+    setTimeout(() => window.open(url, '_blank'), i * 600);
+  });
 }
 
 function openSend() {
   currentMsgTab = 'avail';
+  sendSelected = new Set();
   document.getElementById('send-title').textContent = `📤 שליחה לנגנים (${selected.size})`;
   switchMsgTab('avail');
   pushModalState('send');
