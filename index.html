@@ -265,6 +265,10 @@
       <button class="btn-copy" id="btn-copy" onclick="copyMsg()">📋 העתק</button>
       <a class="btn-wa" id="btn-wa" href="#" target="_blank">💬 וואטסאפ</a>
     </div>
+    <div id="team-wa-section" style="margin-top:18px;display:none">
+      <p style="font-size:15px;font-weight:600;color:#1E3A5F;margin-bottom:10px">📲 שלח ישירות לנגן:</p>
+      <div id="team-wa-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
   </div>
 </div>
 
@@ -273,6 +277,9 @@ let GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
 const GITHUB_REPO  = 'Nunah31/shows-manager';
 const DATA_FILE    = 'shows_data.json';
 let SCRIPT_URL = localStorage.getItem('sheets_script_url') || 'https://script.google.com/macros/s/AKfycbxtBGuEv5qnSdhqOw4roWYtL5n4EoKp5nc9GG-TNs8cos-S1RaMduS0Obg_yvoOA5AY/exec';
+
+// טלפוני נגנים — שמורים ב-localStorage
+let teamPhones = JSON.parse(localStorage.getItem('team_phones') || '{}');
 
 const GOOGLE_CLIENT_ID = '445601042786-j4f64beftudtg0nlcdg1kuqp0k08amqo.apps.googleusercontent.com';
 const CALENDAR_SCOPE   = 'https://www.googleapis.com/auth/calendar.events';
@@ -448,7 +455,8 @@ function buildCalEvent(show) {
     location: show.location || '',
     description: descParts.join('\n'),
     start: { dateTime: startDT, timeZone: 'Asia/Jerusalem' },
-    end:   { dateTime: endDT,   timeZone: 'Asia/Jerusalem' }
+    end:   { dateTime: endDT,   timeZone: 'Asia/Jerusalem' },
+    colorId: '3'  // סגול (Grape)
   };
 }
 
@@ -803,6 +811,32 @@ function openSend() {
   document.getElementById('msg-preview').textContent = msg;
   document.getElementById('send-title').textContent = `📤 שליחה לנגנים (${selected.size})`;
   document.getElementById('btn-wa').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  // בנה רשימת נגנים עם טלפון
+  const selShows = shows.filter(s => selected.has(s.id));
+  const allTeam = new Set();
+  selShows.forEach(s => (s.team||[]).forEach(n => allTeam.add(n)));
+
+  const withPhone = [...allTeam].filter(n => teamPhones[n]);
+  const section = document.getElementById('team-wa-section');
+  const list = document.getElementById('team-wa-list');
+
+  if (withPhone.length > 0) {
+    list.innerHTML = withPhone.map(name => {
+      const phone = teamPhones[name].replace(/\D/g,'');
+      const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+      const waUrl = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
+      return `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;text-decoration:none;color:#166534;font-size:15px;font-weight:600">
+        <span style="font-size:20px">💬</span>
+        <span style="flex:1">${name}</span>
+        <span style="font-size:13px;color:#4ADE80">${teamPhones[name]}</span>
+      </a>`;
+    }).join('');
+    section.style.display = '';
+  } else {
+    section.style.display = 'none';
+  }
+
   document.getElementById('send-panel').classList.add('open');
 }
 function closeSend() { document.getElementById('send-panel').classList.remove('open'); }
@@ -921,6 +955,9 @@ init();
     <input id="settings-script" type="text" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:6px;direction:ltr">
     <p id="sheets-status" style="font-size:13px;margin-bottom:16px;color:#6B7280"></p>
 
+    <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:4px">📲 טלפוני נגנים</label>
+    <div id="phones-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+
     <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:4px">📅 יומן גוגל</label>
     <p id="calendar-status" style="font-size:13px;color:#6B7280;margin-bottom:8px">⚪ לא מחובר</p>
     <button id="btn-connect-cal" onclick="connectGoogle()" style="width:100%;padding:11px;background:#EFF6FF;color:#1E40AF;border:1px solid #93C5FD;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px">🔗 התחבר ליומן גוגל</button>
@@ -947,6 +984,18 @@ function openSettings() {
   document.getElementById('settings-token').value = localStorage.getItem('gh_token') || '';
   document.getElementById('settings-script').value = localStorage.getItem('sheets_script_url') || '';
   document.getElementById('sheets-status').textContent = SCRIPT_URL ? '✅ מחובר לגוגל שיטס' : '⚪ לא מוגדר';
+  updateCalendarStatus();
+
+  // בנה שדות טלפון לכל נגן
+  const list = document.getElementById('phones-list');
+  list.innerHTML = BASE_TEAM.map(name => `
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="flex:1;font-size:14px;color:#374151">${name}</span>
+      <input type="tel" value="${teamPhones[name]||''}" data-name="${name}"
+        placeholder="05X-XXXXXXX" dir="ltr"
+        style="width:140px;padding:6px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;font-family:inherit">
+    </div>`).join('');
+
   document.getElementById('settings-modal').style.display = 'flex';
 }
 
@@ -959,8 +1008,17 @@ function saveSettings() {
   const scriptUrl = document.getElementById('settings-script').value.trim();
   if (token) { localStorage.setItem('gh_token', token); GITHUB_TOKEN = token; }
   if (scriptUrl) { localStorage.setItem('sheets_script_url', scriptUrl); SCRIPT_URL = scriptUrl; }
+
+  // שמור טלפוני נגנים
+  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
+    const name = input.getAttribute('data-name');
+    const phone = input.value.trim();
+    if (phone) teamPhones[name] = phone;
+    else delete teamPhones[name];
+  });
+  localStorage.setItem('team_phones', JSON.stringify(teamPhones));
+
   closeSettings();
-  // סנכרון מיידי עם הגדרות חדשות
   if (scriptUrl) syncToSheets();
 }
 
