@@ -1267,21 +1267,40 @@ function renderPhonesList() {
         <button onclick="moveSettingsMember(${i},1)" ${i===BASE_TEAM.length-1?'disabled':''} title="הורד"
           style="padding:1px 6px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#374151;${i===BASE_TEAM.length-1?'opacity:.3':''}">▼</button>
       </div>
-      <span style="flex:1;font-size:13px;color:#374151;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+      <input type="text" value="${name}" data-member-input autocomplete="off"
+        style="flex:1;min-width:0;padding:5px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:13px;font-family:inherit;color:#374151">
       <input type="tel" value="${teamPhones[name]||''}" data-name="${name}"
-        placeholder="05X-XXXXXXX" dir="ltr" autocomplete="off"
-        style="width:128px;padding:5px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:13px;font-family:inherit">
+        placeholder="טלפון" dir="ltr" autocomplete="off"
+        style="width:110px;padding:5px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:13px;font-family:inherit">
       <button onclick="removeSettingsMember(${i})" title="הסר"
         style="padding:4px 7px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:13px;flex-shrink:0">✕</button>
     </div>`).join('');
 }
 
-function moveSettingsMember(i, dir) {
-  // שמור טלפונים לפני שינוי סדר
-  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
-    const n = input.getAttribute('data-name'); const p = input.value.trim();
-    if (p) teamPhones[n] = p; else delete teamPhones[n];
+function collectCurrentNames() {
+  // קרא שמות + טלפונים מהשורות הקיימות ועדכן BASE_TEAM ו-teamPhones
+  const rows = [...document.querySelectorAll('#phones-list [data-member-name]')];
+  const names = [];
+  rows.forEach(row => {
+    const nameInput  = row.querySelector('input[data-member-input]');
+    const phoneInput = row.querySelector('input[data-name]');
+    const oldName = row.getAttribute('data-member-name');
+    const newName = nameInput ? nameInput.value.trim() : oldName;
+    if (!newName) return;
+    names.push(newName);
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    if (newName !== oldName && teamPhones[oldName]) {
+      teamPhones[newName] = teamPhones[oldName];
+      delete teamPhones[oldName];
+    }
+    if (phone) teamPhones[newName] = phone;
   });
+  BASE_TEAM.length = 0;
+  names.forEach(n => BASE_TEAM.push(n));
+}
+
+function moveSettingsMember(i, dir) {
+  collectCurrentNames();
   const j = i + dir;
   if (j < 0 || j >= BASE_TEAM.length) return;
   [BASE_TEAM[i], BASE_TEAM[j]] = [BASE_TEAM[j], BASE_TEAM[i]];
@@ -1289,11 +1308,8 @@ function moveSettingsMember(i, dir) {
 }
 
 function removeSettingsMember(i) {
+  collectCurrentNames();
   if (!confirm(`להסיר את "${BASE_TEAM[i]}" מהרשימה?`)) return;
-  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
-    const n = input.getAttribute('data-name'); const p = input.value.trim();
-    if (p) teamPhones[n] = p; else delete teamPhones[n];
-  });
   BASE_TEAM.splice(i, 1);
   renderPhonesList();
 }
@@ -1304,11 +1320,7 @@ function addNewMemberSettings() {
   const name  = nameInput.value.trim();
   const phone = phoneInput.value.trim();
   if (!name) { nameInput.focus(); return; }
-  // שמור טלפונים קיימים לפני הוספה
-  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
-    const n = input.getAttribute('data-name'); const p = input.value.trim();
-    if (p) teamPhones[n] = p; else delete teamPhones[n];
-  });
+  collectCurrentNames();
   if (!BASE_TEAM.includes(name)) BASE_TEAM.push(name);
   if (phone) teamPhones[name] = phone;
   nameInput.value = '';
@@ -1322,15 +1334,25 @@ function saveSettings() {
   if (token) { localStorage.setItem('gh_token', token); GITHUB_TOKEN = token; }
   if (scriptUrl) { localStorage.setItem('sheets_script_url', scriptUrl); SCRIPT_URL = scriptUrl; }
 
-  // שמור טלפוני נגנים
-  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
-    const name = input.getAttribute('data-name');
-    const phone = input.value.trim();
-    if (phone) teamPhones[name] = phone;
-    else delete teamPhones[name];
+  // שמור טלפוני נגנים + שמות מעודכנים
+  const newOrder = [];
+  document.querySelectorAll('#phones-list [data-member-name]').forEach(row => {
+    const nameInput  = row.querySelector('input[data-member-input]');
+    const phoneInput = row.querySelector('input[data-name]');
+    const oldName = row.getAttribute('data-member-name');
+    const newName = nameInput ? nameInput.value.trim() : oldName;
+    const phone   = phoneInput ? phoneInput.value.trim() : '';
+    if (!newName) return;
+    newOrder.push(newName);
+    // העבר טלפון מהשם הישן לחדש
+    if (newName !== oldName && teamPhones[oldName]) {
+      teamPhones[newName] = teamPhones[oldName];
+      delete teamPhones[oldName];
+    }
+    if (phone) teamPhones[newName] = phone;
+    else if (newName !== oldName) {} // השאר כפי שהיה
+    else delete teamPhones[newName];
   });
-  // שמור סדר הנגנים החדש
-  const newOrder = [...document.querySelectorAll('#phones-list [data-member-name]')].map(el => el.getAttribute('data-member-name'));
   if (newOrder.length > 0) {
     // עדכן BASE_TEAM בזיכרון לפי הסדר החדש
     BASE_TEAM.length = 0;
