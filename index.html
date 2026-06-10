@@ -209,7 +209,19 @@
     </div>
     <div class="form-grid">
       <div class="field"><label>תאריך *</label><input type="date" id="f-date"></div>
-      <div class="field"><label>שעת התחלה</label><input type="time" id="f-time" placeholder="לא חובה"></div>
+      <div class="field">
+        <label>שעת התחלה</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="f-time-display" onclick="openClockPicker()"
+            style="flex:1;padding:10px 14px;border:1px solid #D1D5DB;border-radius:9px;font-size:16px;font-family:inherit;cursor:pointer;background:#fff;color:#374151;min-height:42px;display:flex;align-items:center;gap:6px">
+            <span style="font-size:18px">🕐</span>
+            <span id="f-time-text" style="font-weight:600">בחר שעה</span>
+          </div>
+          <button type="button" onclick="clearTime()" id="f-time-clear"
+            style="display:none;padding:8px 10px;border:1px solid #FCA5A5;border-radius:8px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:13px">✕</button>
+        </div>
+        <input type="hidden" id="f-time">
+      </div>
       <div class="field"><label>מספר סבבים</label><input type="number" id="f-count" min="1" max="10" value="1"></div>
       <div class="field"><label>סטטוס</label>
         <select id="f-status">
@@ -738,6 +750,8 @@ function openAdd() {
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
   ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-time-text').textContent = 'בחר שעה';
+  document.getElementById('f-time-clear').style.display = 'none';
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -756,6 +770,8 @@ function openEdit(id) {
   document.getElementById('btn-delete').style.display = '';
   document.getElementById('f-date').value = show.date;
   document.getElementById('f-time').value = show.time || '';
+  document.getElementById('f-time-text').textContent = show.time || 'בחר שעה';
+  document.getElementById('f-time-clear').style.display = show.time ? '' : 'none';
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-address').value = show.address || '';
   document.getElementById('f-show').value = show.show || '';
@@ -1231,6 +1247,227 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
+}
+</script>
+
+<!-- Clock Picker Modal -->
+<div id="clock-overlay" onclick="closeClockPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;align-items:center;justify-content:center"></div>
+<div id="clock-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3001;background:#fff;border-radius:20px;padding:24px 20px 16px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;font-family:inherit">
+  <!-- Display -->
+  <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-bottom:20px">
+    <span id="cp-hour-display" onclick="cpSetMode('hour')"
+      style="font-size:52px;font-weight:700;padding:4px 10px;border-radius:10px;cursor:pointer;line-height:1"></span>
+    <span style="font-size:48px;font-weight:700;color:#9CA3AF">:</span>
+    <span id="cp-min-display" onclick="cpSetMode('min')"
+      style="font-size:52px;font-weight:700;padding:4px 10px;border-radius:10px;cursor:pointer;line-height:1"></span>
+  </div>
+  <!-- Clock face -->
+  <div style="position:relative;width:256px;height:256px;margin:0 auto 20px">
+    <svg id="cp-svg" width="256" height="256" style="position:absolute;top:0;left:0"></svg>
+    <canvas id="cp-canvas" width="256" height="256" style="position:absolute;top:0;left:0;cursor:pointer"
+      onclick="cpCanvasClick(event)"></canvas>
+  </div>
+  <!-- Buttons -->
+  <div style="display:flex;gap:10px;justify-content:flex-end">
+    <button onclick="closeClockPicker()" style="padding:10px 22px;border-radius:10px;border:1px solid #D1D5DB;background:#fff;color:#374151;font-size:15px;font-weight:600;cursor:pointer">ביטול</button>
+    <button onclick="confirmClockPicker()" style="padding:10px 28px;border-radius:10px;border:none;background:#1E3A5F;color:#fff;font-size:15px;font-weight:700;cursor:pointer">אישור</button>
+  </div>
+</div>
+
+<script>
+// ── Clock Picker ─────────────────────────────────────────────────────────────
+let cpMode = 'hour'; // 'hour' | 'min'
+let cpHour = null;
+let cpMin  = null;
+
+const CP_SIZE   = 256;
+const CP_CENTER = 128;
+const CP_R_OUT  = 100; // outer ring (hours 1-12 / minutes)
+const CP_R_IN   = 68;  // inner ring (hours 13-23, 0)
+const CP_R_HAND = 4;
+const CP_ACCENT = '#1E3A5F';
+const CP_LIGHT  = '#E0E7FF';
+
+function openClockPicker() {
+  const cur = document.getElementById('f-time').value;
+  if (cur) {
+    const [h, m] = cur.split(':').map(Number);
+    cpHour = h; cpMin = m;
+  } else {
+    cpHour = null; cpMin = null;
+  }
+  cpMode = 'hour';
+  document.getElementById('clock-overlay').style.display = 'block';
+  document.getElementById('clock-modal').style.display  = 'block';
+  cpRender();
+}
+
+function closeClockPicker() {
+  document.getElementById('clock-overlay').style.display = 'none';
+  document.getElementById('clock-modal').style.display  = 'none';
+}
+
+function clearTime() {
+  document.getElementById('f-time').value = '';
+  document.getElementById('f-time-text').textContent = 'בחר שעה';
+  document.getElementById('f-time-clear').style.display = 'none';
+  document.getElementById('f-time-display').style.color = '#374151';
+}
+
+function confirmClockPicker() {
+  if (cpHour === null) cpHour = 0;
+  if (cpMin  === null) cpMin  = 0;
+  const hh = String(cpHour).padStart(2,'0');
+  const mm = String(cpMin).padStart(2,'0');
+  document.getElementById('f-time').value = `${hh}:${mm}`;
+  document.getElementById('f-time-text').textContent = `${hh}:${mm}`;
+  document.getElementById('f-time-clear').style.display = '';
+  closeClockPicker();
+}
+
+function cpSetMode(mode) {
+  cpMode = mode;
+  cpRender();
+}
+
+function cpCanvasClick(e) {
+  const rect = e.target.getBoundingClientRect();
+  const x = e.clientX - rect.left - CP_CENTER;
+  const y = e.clientY - rect.top  - CP_CENTER;
+  const dist = Math.sqrt(x*x + y*y);
+  const angle = Math.atan2(y, x) + Math.PI/2; // 0 = top
+  const deg = ((angle * 180 / Math.PI) + 360) % 360;
+
+  if (cpMode === 'hour') {
+    const isInner = dist < (CP_R_OUT + CP_R_IN) / 2;
+    let h;
+    if (isInner) {
+      // 13-23, 0  (inner ring)
+      h = Math.round(deg / 30) % 12;
+      h = h === 0 ? 0 : h + 12; // 0→0, 1→13 ... 11→23
+    } else {
+      // 1-12 (outer ring)
+      h = Math.round(deg / 30) % 12;
+      h = h === 0 ? 12 : h;
+    }
+    cpHour = h;
+    cpMode = 'min';
+  } else {
+    const m = Math.round(deg / 6) % 60;
+    cpMin = m;
+  }
+  cpRender();
+}
+
+function cpRender() {
+  const canvas = document.getElementById('cp-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, CP_SIZE, CP_SIZE);
+
+  // Background circle
+  ctx.beginPath();
+  ctx.arc(CP_CENTER, CP_CENTER, 118, 0, Math.PI*2);
+  ctx.fillStyle = '#F3F4F6';
+  ctx.fill();
+
+  if (cpMode === 'hour') {
+    // Draw hour numbers
+    for (let h = 1; h <= 24; h++) {
+      const val = h === 24 ? 0 : h;
+      const isInner = h > 12;
+      const r = isInner ? CP_R_IN : CP_R_OUT;
+      const idx = isInner ? h - 12 : h;
+      const angleDeg = (idx * 30 - 90);
+      const rad = angleDeg * Math.PI / 180;
+      const nx = CP_CENTER + r * Math.cos(rad);
+      const ny = CP_CENTER + r * Math.sin(rad);
+
+      const isSelected = cpHour === val;
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(nx, ny, 20, 0, Math.PI*2);
+        ctx.fillStyle = CP_ACCENT;
+        ctx.fill();
+      }
+      ctx.font = `${isInner ? 13 : 15}px sans-serif`;
+      ctx.fontWeight = isSelected ? '700' : '400';
+      ctx.fillStyle = isSelected ? '#fff' : (isInner ? '#6B7280' : '#1F2937');
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(val).padStart(2,'0'), nx, ny);
+    }
+    // Hand
+    if (cpHour !== null) {
+      const isInner = cpHour === 0 || cpHour > 12;
+      const idx = isInner ? (cpHour === 0 ? 12 : cpHour - 12) : cpHour;
+      const r = isInner ? CP_R_IN : CP_R_OUT;
+      const rad = (idx * 30 - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(CP_CENTER, CP_CENTER);
+      ctx.lineTo(CP_CENTER + r * Math.cos(rad), CP_CENTER + r * Math.sin(rad));
+      ctx.strokeStyle = CP_ACCENT;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(CP_CENTER, CP_CENTER, 5, 0, Math.PI*2);
+      ctx.fillStyle = CP_ACCENT;
+      ctx.fill();
+    }
+  } else {
+    // Minutes — 60 ticks, labels every 5
+    for (let m = 0; m < 60; m++) {
+      const rad = (m * 6 - 90) * Math.PI / 180;
+      const nx = CP_CENTER + CP_R_OUT * Math.cos(rad);
+      const ny = CP_CENTER + CP_R_OUT * Math.sin(rad);
+      const isSelected = cpMin === m;
+      const isLabel = m % 5 === 0;
+
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(nx, ny, 18, 0, Math.PI*2);
+        ctx.fillStyle = CP_ACCENT;
+        ctx.fill();
+      }
+      if (isLabel) {
+        ctx.font = '14px sans-serif';
+        ctx.fillStyle = isSelected ? '#fff' : '#1F2937';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(m).padStart(2,'0'), nx, ny);
+      } else if (!isSelected) {
+        ctx.beginPath();
+        ctx.arc(nx, ny, 3, 0, Math.PI*2);
+        ctx.fillStyle = '#9CA3AF';
+        ctx.fill();
+      }
+    }
+    // Hand
+    if (cpMin !== null) {
+      const rad = (cpMin * 6 - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(CP_CENTER, CP_CENTER);
+      ctx.lineTo(CP_CENTER + CP_R_OUT * Math.cos(rad), CP_CENTER + CP_R_OUT * Math.sin(rad));
+      ctx.strokeStyle = CP_ACCENT;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(CP_CENTER, CP_CENTER, 5, 0, Math.PI*2);
+      ctx.fillStyle = CP_ACCENT;
+      ctx.fill();
+    }
+  }
+
+  // Update display
+  const hh = cpHour !== null ? String(cpHour).padStart(2,'0') : '--';
+  const mm = cpMin  !== null ? String(cpMin).padStart(2,'0')  : '--';
+  const hEl = document.getElementById('cp-hour-display');
+  const mEl = document.getElementById('cp-min-display');
+  hEl.textContent = hh;
+  mEl.textContent = mm;
+  hEl.style.background = cpMode === 'hour' ? CP_LIGHT : 'transparent';
+  hEl.style.color       = cpMode === 'hour' ? CP_ACCENT : '#9CA3AF';
+  mEl.style.background = cpMode === 'min'  ? CP_LIGHT : 'transparent';
+  mEl.style.color       = cpMode === 'min'  ? CP_ACCENT : '#9CA3AF';
 }
 </script>
 </body>
