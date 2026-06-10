@@ -1402,6 +1402,8 @@ if ('serviceWorker' in navigator) {
     <span id="cp-min-display" onclick="cpSetMode('min')"
       style="font-size:52px;font-weight:700;padding:4px 10px;border-radius:10px;cursor:pointer;line-height:1"></span>
   </div>
+  <!-- Label -->
+  <div id="cp-mode-label" style="font-size:13px;color:#6B7280;margin-bottom:8px;letter-spacing:1px">שעות</div>
   <!-- Clock face -->
   <div style="position:relative;width:256px;height:256px;margin:0 auto 20px">
     <svg id="cp-svg" width="256" height="256" style="position:absolute;top:0;left:0"></svg>
@@ -1438,6 +1440,7 @@ function openClockPicker() {
     cpHour = null; cpMin = null;
   }
   cpMode = 'hour';
+  document.getElementById('cp-mode-label').textContent = 'שעות';
   document.getElementById('clock-overlay').style.display = 'block';
   document.getElementById('clock-modal').style.display  = 'block';
   cpRender();
@@ -1468,6 +1471,7 @@ function confirmClockPicker() {
 
 function cpSetMode(mode) {
   cpMode = mode;
+  document.getElementById('cp-mode-label').textContent = mode === 'hour' ? 'שעות' : 'דקות';
   cpRender();
 }
 
@@ -1493,9 +1497,10 @@ function cpCanvasClick(e) {
     }
     cpHour = h;
     cpMode = 'min';
+    document.getElementById('cp-mode-label').textContent = 'דקות';
   } else {
-    const m = Math.round(deg / 6) % 60;
-    cpMin = m;
+    // snap to nearest 5 minutes
+    cpMin = Math.round(deg / 30) * 5 % 60;
   }
   cpRender();
 }
@@ -1555,44 +1560,43 @@ function cpRender() {
       ctx.fill();
     }
   } else {
-    // Minutes — 60 ticks, labels every 5
-    for (let m = 0; m < 60; m++) {
+    // Minutes — only 12 positions (every 5 min), clean style
+    const snapMin = cpMin !== null ? Math.round(cpMin / 5) * 5 % 60 : null;
+    for (let step = 0; step < 12; step++) {
+      const m = step * 5;
       const rad = (m * 6 - 90) * Math.PI / 180;
       const nx = CP_CENTER + CP_R_OUT * Math.cos(rad);
       const ny = CP_CENTER + CP_R_OUT * Math.sin(rad);
-      const isSelected = cpMin === m;
-      const isLabel = m % 5 === 0;
+      const isSelected = snapMin === m;
 
       if (isSelected) {
         ctx.beginPath();
-        ctx.arc(nx, ny, 18, 0, Math.PI*2);
+        ctx.arc(nx, ny, 20, 0, Math.PI*2);
         ctx.fillStyle = CP_ACCENT;
         ctx.fill();
       }
-      if (isLabel) {
-        ctx.font = '14px sans-serif';
-        ctx.fillStyle = isSelected ? '#fff' : '#1F2937';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(m).padStart(2,'0'), nx, ny);
-      } else if (!isSelected) {
-        ctx.beginPath();
-        ctx.arc(nx, ny, 3, 0, Math.PI*2);
-        ctx.fillStyle = '#9CA3AF';
-        ctx.fill();
-      }
+      ctx.font = `${isSelected ? 'bold ' : ''}15px sans-serif`;
+      ctx.fillStyle = isSelected ? '#fff' : '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(m).padStart(2,'0'), nx, ny);
     }
     // Hand
-    if (cpMin !== null) {
-      const rad = (cpMin * 6 - 90) * Math.PI / 180;
+    if (snapMin !== null) {
+      const rad = (snapMin * 6 - 90) * Math.PI / 180;
+      const tx = CP_CENTER + CP_R_OUT * Math.cos(rad);
+      const ty = CP_CENTER + CP_R_OUT * Math.sin(rad);
+      // thin line from center to just before the circle
+      const dist = CP_R_OUT - 22;
       ctx.beginPath();
       ctx.moveTo(CP_CENTER, CP_CENTER);
-      ctx.lineTo(CP_CENTER + CP_R_OUT * Math.cos(rad), CP_CENTER + CP_R_OUT * Math.sin(rad));
+      ctx.lineTo(CP_CENTER + dist * Math.cos(rad), CP_CENTER + dist * Math.sin(rad));
       ctx.strokeStyle = CP_ACCENT;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
+      // center dot
       ctx.beginPath();
-      ctx.arc(CP_CENTER, CP_CENTER, 5, 0, Math.PI*2);
+      ctx.arc(CP_CENTER, CP_CENTER, 4, 0, Math.PI*2);
       ctx.fillStyle = CP_ACCENT;
       ctx.fill();
     }
