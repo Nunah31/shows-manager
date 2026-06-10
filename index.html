@@ -332,25 +332,12 @@ const BASE_TEAM = [
   'אסף – הגברה',
 ];
 
-// העברת טלפון מ"אשקלון" ל"אשדוד" (שינוי שם, אותו נגן)
-if (teamPhones['סקסופון - אריאל אשקלון'] && !teamPhones['סקסופון - אריאל אשדוד']) {
-  teamPhones['סקסופון - אריאל אשדוד'] = teamPhones['סקסופון - אריאל אשקלון'];
-  delete teamPhones['סקסופון - אריאל אשקלון'];
-  localStorage.setItem('team_phones', JSON.stringify(teamPhones));
-}
-// הוספת נגנים חדשים עם טלפון קבוע
-let _phonesUpdated = false;
-if (!teamPhones['סקסופון – אפי פרנקל'] && teamPhones['סקסופון - אפי פרנקל']) {
-  teamPhones['סקסופון – אפי פרנקל'] = teamPhones['סקסופון - אפי פרנקל'];
-  delete teamPhones['סקסופון - אפי פרנקל']; _phonesUpdated = true;
-}
-if (!teamPhones['קלידן – אהרוניקו'] && teamPhones['קלידן - אהרוניקו']) {
-  teamPhones['קלידן – אהרוניקו'] = teamPhones['קלידן - אהרוניקו'];
-  delete teamPhones['קלידן - אהרוניקו']; _phonesUpdated = true;
-}
-if (!teamPhones['סקסופון – אפי פרנקל']) { teamPhones['סקסופון – אפי פרנקל'] = '050-2265666'; _phonesUpdated = true; }
-if (!teamPhones['קלידן – אהרוניקו'])     { teamPhones['קלידן – אהרוניקו']     = '050-3551507'; _phonesUpdated = true; }
-if (!teamPhones['קלידן - נתי באן'])      { teamPhones['קלידן - נתי באן']      = '054-2569959'; _phonesUpdated = true; }
+// טלפוני ברירת מחדל — יוחלו אחרי טעינה מ-GitHub (ב-init)
+const DEFAULT_PHONES = {
+  'סקסופון – אפי פרנקל': '050-2265666',
+  'קלידן – אהרוניקו':     '050-3551507',
+  'קלידן - נתי באן':      '054-2569959',
+};
 
 const STATUS_CFG = {
   done:      { label:'התקיים ✅',       bg:'#DCFCE7', text:'#166534', border:'#86EFAC' },
@@ -1053,10 +1040,17 @@ async function init() {
   const loaded = await loadFromGithub();
   if (!loaded) {
     shows = window.INITIAL_SHOWS || [];
-    await saveToGithub();
-  } else if (_phonesUpdated) {
-    await saveToGithub(); // שמור נגנים חדשים ל-GitHub
   }
+  // החל טלפוני ברירת מחדל + מיגרציות — תמיד אחרי טעינה מ-GitHub
+  let _phonesUpdated = false;
+  if (teamPhones['סקסופון - אריאל אשקלון'] && !teamPhones['סקסופון - אריאל אשדוד']) {
+    teamPhones['סקסופון - אריאל אשדוד'] = teamPhones['סקסופון - אריאל אשקלון'];
+    delete teamPhones['סקסופון - אריאל אשקלון']; _phonesUpdated = true;
+  }
+  Object.entries(DEFAULT_PHONES).forEach(([name, phone]) => {
+    if (!teamPhones[name]) { teamPhones[name] = phone; _phonesUpdated = true; }
+  });
+  if (_phonesUpdated) await saveToGithub();
   render();
   // אתחול Google Auth אחרי טעינת הספרייה
   if (window.google) { initGoogleAuth(); }
