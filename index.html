@@ -483,20 +483,30 @@ function initGoogleAuth() {
     client_id: GOOGLE_CLIENT_ID,
     scope: CALENDAR_SCOPE,
     login_hint: 'udiest@gmail.com',
-    prompt: 'select_account',
+    prompt: '',          // ברירת מחדל: שקט
     callback: onGoogleToken,
+    error_callback: (err) => {
+      // אם ההתחברות השקטה נכשלה — לא לשנות סטטוס, רק לאפס token
+      if (err.type === 'popup_closed' || err.type === 'access_denied') {
+        gAccessToken = null;
+        updateCalendarStatus();
+      }
+    }
   });
-  // ניסיון התחברות שקטה אוטומטית בטעינה
-  silentGoogleRefresh();
+  // אם המשתמש כבר התחבר בעבר — נסה שקט אוטומטי
+  if (localStorage.getItem('gcal_connected') === '1') {
+    silentGoogleRefresh();
+  }
 }
 
 function onGoogleToken(resp) {
   if (resp.access_token) {
     gAccessToken = resp.access_token;
+    localStorage.setItem('gcal_connected', '1'); // סמן שהתחבר
     updateCalendarStatus();
     render();
-    // רענון אוטומטי 5 דקות לפני פקיעה (token חי ~3600 שניות)
-    const expiresIn = (resp.expires_in || 3600) - 300; // 5 דקות מוקדם
+    // רענון אוטומטי 5 דקות לפני פקיעה
+    const expiresIn = (resp.expires_in || 3600) - 300;
     if (gTokenTimer) clearTimeout(gTokenTimer);
     gTokenTimer = setTimeout(() => silentGoogleRefresh(), expiresIn * 1000);
   }
@@ -505,20 +515,24 @@ function onGoogleToken(resp) {
 function silentGoogleRefresh() {
   if (!tokenClient) return;
   try {
-    tokenClient.requestAccessToken({ prompt: '' }); // שקט — בלי חלון
+    tokenClient.requestAccessToken({ prompt: '' });
   } catch(e) {}
 }
 
 function connectGoogle() {
-  if (!tokenClient) { initGoogleAuth(); }
+  if (!tokenClient) initGoogleAuth();
   if (tokenClient) tokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
 function updateCalendarStatus() {
-  const el = document.getElementById('calendar-status');
-  if (el) el.textContent = gAccessToken ? '✅ מחובר ליומן גוגל' : '⚪ לא מחובר';
+  const connected  = !!gAccessToken;
+  const everLinked = localStorage.getItem('gcal_connected') === '1';
+  const el  = document.getElementById('calendar-status');
   const btn = document.getElementById('btn-connect-cal');
-  if (btn) btn.textContent = gAccessToken ? '✅ מחובר' : '🔗 התחבר ליומן גוגל';
+  if (el)  el.textContent  = connected ? '✅ מחובר ליומן גוגל'
+                           : everLinked ? '🔄 מתחבר מחדש...'
+                           : '⚪ לא מחובר';
+  if (btn) btn.textContent = connected ? '✅ מחובר' : '🔗 התחבר ליומן גוגל';
 }
 
 function buildCalEvent(show) {
