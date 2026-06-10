@@ -244,7 +244,7 @@
         <label>👥 צוות למופע</label>
         <div class="team-list" id="team-list"></div>
         <div class="team-custom-row">
-          <input type="text" id="custom-member-input" placeholder="הוסף איש צוות...">
+          <input type="text" id="custom-member-input" placeholder="הוסף איש צוות..." autocomplete="off">
           <button onclick="addCustomMember()">הוסף</button>
         </div>
       </div>
@@ -770,7 +770,14 @@ function openEdit(id) {
   // Restore team
   const savedTeam = show.team || [];
   selectedTeam = new Set(savedTeam);
-  customMembers = savedTeam.filter(n => !BASE_TEAM.includes(n));
+  // נגן שהיה custom ועכשיו קיים ב-BASE_TEAM (שם חלקי) — העבר אוטומטית
+  savedTeam.forEach(oldName => {
+    if (BASE_TEAM.includes(oldName)) return; // כבר מדויק
+    const match = BASE_TEAM.find(b => b.includes(oldName) || oldName.includes(b));
+    if (match) { selectedTeam.delete(oldName); selectedTeam.add(match); }
+  });
+  // רק נגנים שאינם ב-BASE_TEAM ולא הוחלפו — מונע כפילויות
+  customMembers = [...selectedTeam].filter(n => !BASE_TEAM.includes(n));
   renderTeamList();
   document.getElementById('modal').classList.add('open');
   pushModalState('modal');
