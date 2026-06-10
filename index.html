@@ -208,7 +208,19 @@
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="form-grid">
-      <div class="field"><label>תאריך *</label><input type="date" id="f-date"></div>
+      <div class="field">
+        <label>תאריך *</label>
+        <div style="position:relative">
+          <div id="f-date-display" onclick="document.getElementById('f-date-real').showPicker?.()||document.getElementById('f-date-real').click()"
+            style="padding:10px 14px;border:1px solid #D1D5DB;border-radius:9px;font-size:16px;cursor:pointer;background:#fff;color:#374151;display:flex;align-items:center;justify-content:space-between">
+            <span id="f-date-text" style="font-weight:600">בחר תאריך</span>
+            <span style="font-size:18px">📅</span>
+          </div>
+          <input type="date" id="f-date" style="position:absolute;opacity:0;width:0;height:0;top:0;left:0;pointer-events:none">
+          <input type="date" id="f-date-real" style="position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer"
+            onchange="onDateChange(this.value)">
+        </div>
+      </div>
       <div class="field">
         <label>שעת התחלה</label>
         <div style="display:flex;align-items:center;gap:8px">
@@ -454,6 +466,8 @@ function showSaving() { const el = document.getElementById('save-indicator'); el
 function hideSaving() { const el = document.getElementById('save-indicator'); el.textContent = '✅ נשמר!'; setTimeout(() => el.classList.remove('visible'), 1500); }
 
 // ── Google Calendar ──────────────────────────────────────────────────────────
+let gTokenTimer = null;
+
 function initGoogleAuth() {
   if (!window.google) return;
   tokenClient = google.accounts.oauth2.initTokenClient({
@@ -461,19 +475,34 @@ function initGoogleAuth() {
     scope: CALENDAR_SCOPE,
     login_hint: 'udiest@gmail.com',
     prompt: 'select_account',
-    callback: (resp) => {
-      if (resp.access_token) {
-        gAccessToken = resp.access_token;
-        updateCalendarStatus();
-        render();
-      }
-    }
+    callback: onGoogleToken,
   });
+  // ניסיון התחברות שקטה אוטומטית בטעינה
+  silentGoogleRefresh();
+}
+
+function onGoogleToken(resp) {
+  if (resp.access_token) {
+    gAccessToken = resp.access_token;
+    updateCalendarStatus();
+    render();
+    // רענון אוטומטי 5 דקות לפני פקיעה (token חי ~3600 שניות)
+    const expiresIn = (resp.expires_in || 3600) - 300; // 5 דקות מוקדם
+    if (gTokenTimer) clearTimeout(gTokenTimer);
+    gTokenTimer = setTimeout(() => silentGoogleRefresh(), expiresIn * 1000);
+  }
+}
+
+function silentGoogleRefresh() {
+  if (!tokenClient) return;
+  try {
+    tokenClient.requestAccessToken({ prompt: '' }); // שקט — בלי חלון
+  } catch(e) {}
 }
 
 function connectGoogle() {
   if (!tokenClient) { initGoogleAuth(); }
-  if (tokenClient) tokenClient.requestAccessToken();
+  if (tokenClient) tokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
 function updateCalendarStatus() {
@@ -575,6 +604,11 @@ async function handleCalClick(id) {
 
 // ── Rendering ───────────────────────────────────────────────────────────────
 function fmtDate(d) { if(!d) return ''; const [y,m,day]=d.split('-'); return `${day}/${m}/${y.slice(2)}`; }
+
+function onDateChange(val) {
+  document.getElementById('f-date').value = val;
+  document.getElementById('f-date-text').textContent = val ? fmtDate(val) : 'בחר תאריך';
+}
 
 function buildCalUrl(s) {
   const [y,m,day] = s.date.split('-');
@@ -750,6 +784,8 @@ function openAdd() {
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
   ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-date-real').value = '';
+  document.getElementById('f-date-text').textContent = 'בחר תאריך';
   document.getElementById('f-time-text').textContent = 'בחר שעה';
   document.getElementById('f-time-clear').style.display = 'none';
   document.getElementById('f-count').value = 1;
@@ -769,6 +805,8 @@ function openEdit(id) {
   document.getElementById('btn-save').textContent = '💾 שמור שינויים';
   document.getElementById('btn-delete').style.display = '';
   document.getElementById('f-date').value = show.date;
+  document.getElementById('f-date-real').value = show.date;
+  document.getElementById('f-date-text').textContent = show.date ? fmtDate(show.date) : 'בחר תאריך';
   document.getElementById('f-time').value = show.time || '';
   document.getElementById('f-time-text').textContent = show.time || 'בחר שעה';
   document.getElementById('f-time-clear').style.display = show.time ? '' : 'none';
