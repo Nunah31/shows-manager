@@ -483,40 +483,57 @@ function initGoogleAuth() {
     client_id: GOOGLE_CLIENT_ID,
     scope: CALENDAR_SCOPE,
     login_hint: 'udiest@gmail.com',
-    prompt: '',          // ברירת מחדל: שקט
+    prompt: '',
     callback: onGoogleToken,
-    error_callback: (err) => {
-      // אם ההתחברות השקטה נכשלה — לא לשנות סטטוס, רק לאפס token
-      if (err.type === 'popup_closed' || err.type === 'access_denied') {
-        gAccessToken = null;
-        updateCalendarStatus();
+  });
+  // נסה לשחזר token שמור מ-localStorage
+  restoreGoogleToken();
+}
+
+function restoreGoogleToken() {
+  const saved = localStorage.getItem('gcal_token');
+  if (!saved) return;
+  try {
+    const { token, expires } = JSON.parse(saved);
+    if (token && expires && Date.now() < expires - 60000) {
+      // Token עדיין תקף (יותר מדקה עד פקיעה)
+      gAccessToken = token;
+      updateCalendarStatus();
+      // תזמן רענון 5 דקות לפני פקיעה
+      const msLeft = expires - Date.now() - 300000;
+      if (gTokenTimer) clearTimeout(gTokenTimer);
+      gTokenTimer = setTimeout(() => silentGoogleRefresh(), Math.max(msLeft, 10000));
+    } else {
+      // Token פג — נסה חידוש שקט
+      localStorage.removeItem('gcal_token');
+      if (localStorage.getItem('gcal_connected') === '1') {
+        silentGoogleRefresh();
       }
     }
-  });
-  // אם המשתמש כבר התחבר בעבר — נסה שקט אוטומטי
-  if (localStorage.getItem('gcal_connected') === '1') {
-    silentGoogleRefresh();
-  }
+  } catch(e) { localStorage.removeItem('gcal_token'); }
 }
 
 function onGoogleToken(resp) {
   if (resp.access_token) {
     gAccessToken = resp.access_token;
-    localStorage.setItem('gcal_connected', '1'); // סמן שהתחבר
+    const expiresIn = resp.expires_in || 3600;
+    // שמור token + זמן פקיעה ב-localStorage
+    localStorage.setItem('gcal_token', JSON.stringify({
+      token: resp.access_token,
+      expires: Date.now() + expiresIn * 1000
+    }));
+    localStorage.setItem('gcal_connected', '1');
     updateCalendarStatus();
     render();
     // רענון אוטומטי 5 דקות לפני פקיעה
-    const expiresIn = (resp.expires_in || 3600) - 300;
     if (gTokenTimer) clearTimeout(gTokenTimer);
-    gTokenTimer = setTimeout(() => silentGoogleRefresh(), expiresIn * 1000);
+    gTokenTimer = setTimeout(() => silentGoogleRefresh(), (expiresIn - 300) * 1000);
   }
 }
 
 function silentGoogleRefresh() {
   if (!tokenClient) return;
-  try {
-    tokenClient.requestAccessToken({ prompt: '' });
-  } catch(e) {}
+  try { tokenClient.requestAccessToken({ prompt: '' }); } catch(e) {}
 }
 
 function connectGoogle() {
@@ -525,13 +542,10 @@ function connectGoogle() {
 }
 
 function updateCalendarStatus() {
-  const connected  = !!gAccessToken;
-  const everLinked = localStorage.getItem('gcal_connected') === '1';
+  const connected = !!gAccessToken;
   const el  = document.getElementById('calendar-status');
   const btn = document.getElementById('btn-connect-cal');
-  if (el)  el.textContent  = connected ? '✅ מחובר ליומן גוגל'
-                           : everLinked ? '🔄 מתחבר מחדש...'
-                           : '⚪ לא מחובר';
+  if (el)  el.textContent  = connected ? '✅ מחובר ליומן גוגל' : '⚪ לא מחובר';
   if (btn) btn.textContent = connected ? '✅ מחובר' : '🔗 התחבר ליומן גוגל';
 }
 
