@@ -416,6 +416,15 @@ async function loadFromGithub() {
         teamPhones = parsed.teamPhones;
         localStorage.setItem('team_phones', JSON.stringify(teamPhones));
       }
+      if (parsed.teamOrder && Array.isArray(parsed.teamOrder) && parsed.teamOrder.length > 0) {
+        // שחזר את רשימת הנגנים מ-GitHub — מסנכרן בין מכשירים
+        const savedOrder = parsed.teamOrder;
+        // הוסף נגנים חדשים מ-BASE_TEAM שאינם ב-savedOrder
+        BASE_TEAM.forEach(n => { if (!savedOrder.includes(n)) savedOrder.push(n); });
+        BASE_TEAM.length = 0;
+        savedOrder.forEach(n => BASE_TEAM.push(n));
+        localStorage.setItem('team_order', JSON.stringify(BASE_TEAM));
+      }
     }
     return true;
   } catch(e) { return false; }
@@ -423,7 +432,7 @@ async function loadFromGithub() {
 
 async function saveToGithub() {
   showSaving();
-  const jsonStr = JSON.stringify({ shows, teamPhones }, null, 2);
+  const jsonStr = JSON.stringify({ shows, teamPhones, teamOrder: BASE_TEAM }, null, 2);
   const bytes2 = new TextEncoder().encode(jsonStr);
   let binary2 = '';
   bytes2.forEach(b => binary2 += String.fromCharCode(b));
