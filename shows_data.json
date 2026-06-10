@@ -421,14 +421,15 @@
       "contact": "",
       "phone": "",
       "time": "10:15",
-      "balanceTime": "09:00",
+      "address": "",
       "count": 1,
       "status": "approved",
       "morning": true,
       "notes": "",
       "team": [
         "סקסופון – עמירם גרנות צפון",
-        "עמית כהן"
+        "עמית כהן",
+        "עומרי - גיטרה"
       ],
       "id": 28,
       "calEventId": "obouncib5apht8k27s4cpsmedg"
