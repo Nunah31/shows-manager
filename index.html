@@ -356,6 +356,15 @@ const BASE_TEAM = [
   'אסף – הגברה',
 ];
 
+// טען סדר נגנים שמור (אם שינו בהגדרות)
+const _savedOrder = JSON.parse(localStorage.getItem('team_order') || 'null');
+if (_savedOrder && Array.isArray(_savedOrder) && _savedOrder.length > 0) {
+  // הוסף נגנים חדשים שב-BASE_TEAM אבל לא בסדר השמור
+  BASE_TEAM.forEach(n => { if (!_savedOrder.includes(n)) _savedOrder.push(n); });
+  BASE_TEAM.length = 0;
+  _savedOrder.forEach(n => BASE_TEAM.push(n));
+}
+
 // טלפוני ברירת מחדל — יוחלו אחרי טעינה מ-GitHub (ב-init)
 const DEFAULT_PHONES = {
   'סקסופון – אפי פרנקל': '050-2265666',
@@ -1195,7 +1204,16 @@ init();
     <p id="sheets-status" style="font-size:13px;margin-bottom:16px;color:#6B7280"></p>
 
     <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:4px">📲 טלפוני נגנים</label>
-    <div id="phones-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+    <div id="phones-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+    <!-- הוספת נגן חדש -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;padding:10px;background:#F0FDF4;border-radius:10px;border:1px solid #86EFAC">
+      <input id="new-member-name" type="text" placeholder="שם הנגן" autocomplete="off"
+        style="flex:1;padding:8px 10px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;font-family:inherit">
+      <input id="new-member-phone" type="tel" placeholder="050-0000000" dir="ltr" autocomplete="off"
+        style="width:130px;padding:8px 10px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;font-family:inherit">
+      <button onclick="addNewMemberSettings()"
+        style="padding:8px 12px;background:#22C55E;color:#fff;border:none;border-radius:7px;font-size:18px;cursor:pointer;font-weight:700">+</button>
+    </div>
 
     <label style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:4px">📅 יומן גוגל</label>
     <p id="calendar-status" style="font-size:13px;color:#6B7280;margin-bottom:8px">⚪ לא מחובר</p>
@@ -1226,14 +1244,9 @@ function openSettings() {
   updateCalendarStatus();
 
   // בנה שדות טלפון לכל נגן
-  const list = document.getElementById('phones-list');
-  list.innerHTML = BASE_TEAM.map(name => `
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="flex:1;font-size:14px;color:#374151">${name}</span>
-      <input type="tel" value="${teamPhones[name]||''}" data-name="${name}"
-        placeholder="05X-XXXXXXX" dir="ltr"
-        style="width:140px;padding:6px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;font-family:inherit">
-    </div>`).join('');
+  document.getElementById('new-member-name').value = '';
+  document.getElementById('new-member-phone').value = '';
+  renderPhonesList();
 
   pushModalState('settings');
   document.getElementById('settings-modal').style.display = 'flex';
@@ -1241,6 +1254,66 @@ function openSettings() {
 
 function closeSettings() {
   document.getElementById('settings-modal').style.display = 'none';
+}
+
+function renderPhonesList() {
+  const list = document.getElementById('phones-list');
+  list.innerHTML = BASE_TEAM.map((name, i) => `
+    <div data-member-name="${name.replace(/"/g,'&quot;')}" style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:#F9FAFB;border-radius:8px;border:1px solid #E5E7EB">
+      <!-- חצים סידור -->
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <button onclick="moveSettingsMember(${i},-1)" ${i===0?'disabled':''} title="העלה"
+          style="padding:1px 6px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#374151;${i===0?'opacity:.3':''}">▲</button>
+        <button onclick="moveSettingsMember(${i},1)" ${i===BASE_TEAM.length-1?'disabled':''} title="הורד"
+          style="padding:1px 6px;border:1px solid #D1D5DB;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#374151;${i===BASE_TEAM.length-1?'opacity:.3':''}">▼</button>
+      </div>
+      <span style="flex:1;font-size:13px;color:#374151;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+      <input type="tel" value="${teamPhones[name]||''}" data-name="${name}"
+        placeholder="05X-XXXXXXX" dir="ltr" autocomplete="off"
+        style="width:128px;padding:5px 8px;border:1px solid #D1D5DB;border-radius:7px;font-size:13px;font-family:inherit">
+      <button onclick="removeSettingsMember(${i})" title="הסר"
+        style="padding:4px 7px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:13px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function moveSettingsMember(i, dir) {
+  // שמור טלפונים לפני שינוי סדר
+  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
+    const n = input.getAttribute('data-name'); const p = input.value.trim();
+    if (p) teamPhones[n] = p; else delete teamPhones[n];
+  });
+  const j = i + dir;
+  if (j < 0 || j >= BASE_TEAM.length) return;
+  [BASE_TEAM[i], BASE_TEAM[j]] = [BASE_TEAM[j], BASE_TEAM[i]];
+  renderPhonesList();
+}
+
+function removeSettingsMember(i) {
+  if (!confirm(`להסיר את "${BASE_TEAM[i]}" מהרשימה?`)) return;
+  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
+    const n = input.getAttribute('data-name'); const p = input.value.trim();
+    if (p) teamPhones[n] = p; else delete teamPhones[n];
+  });
+  BASE_TEAM.splice(i, 1);
+  renderPhonesList();
+}
+
+function addNewMemberSettings() {
+  const nameInput  = document.getElementById('new-member-name');
+  const phoneInput = document.getElementById('new-member-phone');
+  const name  = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  // שמור טלפונים קיימים לפני הוספה
+  document.querySelectorAll('#phones-list input[data-name]').forEach(input => {
+    const n = input.getAttribute('data-name'); const p = input.value.trim();
+    if (p) teamPhones[n] = p; else delete teamPhones[n];
+  });
+  if (!BASE_TEAM.includes(name)) BASE_TEAM.push(name);
+  if (phone) teamPhones[name] = phone;
+  nameInput.value = '';
+  phoneInput.value = '';
+  renderPhonesList();
 }
 
 function saveSettings() {
@@ -1256,6 +1329,14 @@ function saveSettings() {
     if (phone) teamPhones[name] = phone;
     else delete teamPhones[name];
   });
+  // שמור סדר הנגנים החדש
+  const newOrder = [...document.querySelectorAll('#phones-list [data-member-name]')].map(el => el.getAttribute('data-member-name'));
+  if (newOrder.length > 0) {
+    // עדכן BASE_TEAM בזיכרון לפי הסדר החדש
+    BASE_TEAM.length = 0;
+    newOrder.forEach(n => BASE_TEAM.push(n));
+    localStorage.setItem('team_order', JSON.stringify(BASE_TEAM));
+  }
   localStorage.setItem('team_phones', JSON.stringify(teamPhones));
 
   closeSettings();
