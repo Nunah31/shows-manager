@@ -1254,7 +1254,7 @@ if ('serviceWorker' in navigator) {
 <div id="clock-overlay" onclick="closeClockPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;align-items:center;justify-content:center"></div>
 <div id="clock-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3001;background:#fff;border-radius:20px;padding:24px 20px 16px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;font-family:inherit">
   <!-- Display -->
-  <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-bottom:20px">
+  <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-bottom:20px;direction:ltr">
     <span id="cp-hour-display" onclick="cpSetMode('hour')"
       style="font-size:52px;font-weight:700;padding:4px 10px;border-radius:10px;cursor:pointer;line-height:1"></span>
     <span style="font-size:48px;font-weight:700;color:#9CA3AF">:</span>
