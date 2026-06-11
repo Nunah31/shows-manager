@@ -434,7 +434,9 @@
       "status": "approved",
       "morning": true,
       "notes": "8 פלוס",
-      "team": [],
+      "team": [
+        "דניאל טהאן"
+      ],
       "id": 29,
       "calEventId": "vbkv20l25tkiru9njn4hrc7d18"
     }
