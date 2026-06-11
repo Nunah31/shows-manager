@@ -436,6 +436,24 @@
       ],
       "id": 28,
       "calEventId": "obouncib5apht8k27s4cpsmedg"
+    },
+    {
+      "date": "2026-08-30",
+      "location": "הרצליה",
+      "show": "מסיבה ישראלית - הרכב שלישייה",
+      "type": "מבוגרים",
+      "presenter": "מנשה אמיר",
+      "contact": "",
+      "phone": "",
+      "time": "14:00",
+      "address": "",
+      "count": 1,
+      "status": "approved",
+      "morning": true,
+      "notes": "8 פלוס",
+      "team": [],
+      "id": 29,
+      "calEventId": null
     }
   ],
   "teamPhones": {
