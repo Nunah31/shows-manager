@@ -259,9 +259,10 @@
       "show": "מסע ישראלי",
       "type": "תיכון",
       "presenter": "אנחנו",
-      "contact": "",
-      "phone": "",
+      "contact": "מיכל",
+      "phone": "054-4251020",
       "time": "",
+      "address": "",
       "count": 1,
       "status": "approved",
       "morning": true,
@@ -270,8 +271,8 @@
         "בוריס – הגברה",
         "שי ברק",
         "עמית כהן",
-        "גיל סמואל",
-        "ניב רז"
+        "ניב רז",
+        "סקסופון - גיל סמואל"
       ],
       "id": 20,
       "calEventId": "grvkljrs1pd6gg11fas7nhec9g"
