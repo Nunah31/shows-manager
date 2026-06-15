@@ -326,8 +326,9 @@
       "contact": "",
       "phone": "",
       "time": "",
+      "address": "",
       "count": 1,
-      "status": "approved",
+      "status": "pending",
       "morning": true,
       "notes": "דתי",
       "team": [
@@ -335,7 +336,7 @@
         "עמית כהן",
         "דניאל טהאן",
         "ניב רז",
-        "גיל סמואל"
+        "סקסופון - גיל סמואל"
       ],
       "id": 23,
       "calEventId": null
