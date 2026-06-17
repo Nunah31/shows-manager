@@ -425,6 +425,24 @@
       ],
       "id": 29,
       "calEventId": "vbkv20l25tkiru9njn4hrc7d18"
+    },
+    {
+      "date": "2026-06-17",
+      "location": "כפר יינה",
+      "show": "",
+      "type": "",
+      "presenter": "",
+      "contact": "אסתר",
+      "phone": "",
+      "time": "22:00",
+      "address": "",
+      "count": 1,
+      "status": "",
+      "morning": true,
+      "notes": "",
+      "team": [],
+      "id": 30,
+      "calEventId": null
     }
   ],
   "teamPhones": {
