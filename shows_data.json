@@ -278,23 +278,6 @@
       "calEventId": "grvkljrs1pd6gg11fas7nhec9g"
     },
     {
-      "date": "2026-06-21",
-      "location": "חולון",
-      "show": "מסע ישראלי",
-      "type": "תיכון צרפתי",
-      "presenter": "אנחנו",
-      "contact": "",
-      "phone": "",
-      "time": "",
-      "count": 2,
-      "status": "cancelled",
-      "morning": true,
-      "notes": "מחכה לתשובה",
-      "team": [],
-      "id": 21,
-      "calEventId": null
-    },
-    {
       "date": "2026-06-28",
       "location": "משאבים נגב",
       "show": "מסע ישראלי",
