@@ -425,6 +425,27 @@
       ],
       "id": 29,
       "calEventId": "vbkv20l25tkiru9njn4hrc7d18"
+    },
+    {
+      "date": "2026-06-17",
+      "location": "נתניה",
+      "show": "",
+      "type": "",
+      "presenter": "",
+      "contact": "אסתר",
+      "phone": "",
+      "time": "20:00",
+      "address": "",
+      "count": 1,
+      "status": "",
+      "morning": true,
+      "notes": "",
+      "team": [
+        "בוריס – הגברה",
+        "קלידן ארנון שרון"
+      ],
+      "id": 30,
+      "calEventId": null
     }
   ],
   "teamPhones": {
