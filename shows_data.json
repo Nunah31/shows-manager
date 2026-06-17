@@ -425,24 +425,6 @@
       ],
       "id": 29,
       "calEventId": "vbkv20l25tkiru9njn4hrc7d18"
-    },
-    {
-      "date": "2026-06-17",
-      "location": "נתניה",
-      "show": "",
-      "type": "",
-      "presenter": "",
-      "contact": "",
-      "phone": "",
-      "time": "22:00",
-      "address": "",
-      "count": 1,
-      "status": "",
-      "morning": true,
-      "notes": "",
-      "team": [],
-      "id": 30,
-      "calEventId": "9qva7nkfp6jcf4mf42tamv1r5k"
     }
   ],
   "teamPhones": {
