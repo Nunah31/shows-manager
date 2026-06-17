@@ -935,10 +935,20 @@ async function saveForm() {
 
 async function deleteShow() {
   if (!confirm('למחוק את המופע?')) return;
+  const show = shows.find(s => s.id === editId);
   shows = shows.filter(s => s.id !== editId);
   closeModal();
   render();
   await saveToGithub();
+  // מחק גם מיומן גוגל אם קיים שם
+  if (show?.calEventId && gAccessToken) {
+    try {
+      await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${show.calEventId}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${gAccessToken}` } }
+      );
+    } catch(e) {}
+  }
 }
 
 // ── Send ────────────────────────────────────────────────────────────────────
