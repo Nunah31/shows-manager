@@ -18,11 +18,11 @@
 
   .header { background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%); padding: 14px 12px; color: white; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
   .header-inner { max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 6px; }
-  .header h1 { font-size: 19px; font-weight: 700; }
-  .header p { font-size: 12px; opacity: 0.75; margin-top: 1px; }
-  .btn-export { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 7px 10px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .header h1 { font-size: 21px; font-weight: 700; }
+  .header p { font-size: 13px; opacity: 0.75; margin-top: 1px; }
+  .btn-export { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 9px; padding: 9px 14px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
   .btn-export:hover { background: rgba(255,255,255,0.3); }
-  .btn-add { background: white; color: #1E3A5F; border: none; border-radius: 8px; padding: 7px 10px; font-weight: 700; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .btn-add { background: white; color: #1E3A5F; border: none; border-radius: 9px; padding: 9px 14px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
 
   .main { max-width: 640px; margin: 0 auto; padding: 14px 12px 80px; }
 
@@ -123,9 +123,9 @@
 
   @media (max-width: 640px) {
     body { font-size: 18px; }
-    .header h1 { font-size: 16px; }
-    .header p { font-size: 11px; }
-    .btn-export, .btn-add { font-size: 11px; padding: 6px 8px; }
+    .header h1 { font-size: 19px; }
+    .header p { font-size: 13px; }
+    .btn-export, .btn-add { font-size: 13px; padding: 8px 13px; }
     .filter-btn { font-size: 17px; padding: 9px 16px; }
     .btn-sm { font-size: 17px; padding: 9px 16px; }
     .card-date { font-size: 22px; }
@@ -160,12 +160,12 @@
 
 <!-- Header -->
 <div class="header">
-  <div class="header-inner">
-    <div style="min-width:0">
-      <h1 style="white-space:nowrap">ניהול מופעים</h1>
+  <div class="header-inner" style="flex-direction:column;align-items:stretch;gap:8px">
+    <div style="min-width:0;text-align:center">
+      <h1 style="white-space:nowrap">🎵 ניהול מופעים</h1>
       <p id="show-count" style="white-space:nowrap"></p>
     </div>
-    <div style="display:flex;gap:6px;flex-shrink:0">
+    <div style="display:flex;gap:8px;justify-content:center">
       <button class="btn-export" onclick="exportExcel()">📊 אקסל</button>
       <button class="btn-export" onclick="openSettings()" title="הגדרות">⚙️</button>
       <button class="btn-add" onclick="openAdd()" style="white-space:nowrap">➕ מופע חדש</button>
@@ -723,7 +723,7 @@ function getFiltered() {
   const today = new Date().toISOString().slice(0,10);
   let list = [...shows].sort((a,b) => a.date.localeCompare(b.date));
   if (currentFilter==='future')   return list.filter(s => s.date >= today);
-  if (currentFilter==='past')     return list.filter(s => s.date < today);
+  if (currentFilter==='past')     return list.filter(s => s.date < today).reverse();
   if (currentFilter==='approved') return list.filter(s => ['approved','done'].includes(s.status));
   if (currentFilter==='open')     return list.filter(s => ['open','pending','signature',''].includes(s.status));
   if (currentFilter==='morning')  return list.filter(s => s.morning && s.date >= today);
