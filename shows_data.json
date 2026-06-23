@@ -443,6 +443,24 @@
       "team": [],
       "id": 30,
       "calEventId": "3n5cs41a1trdrpdd48a7jqga4k"
+    },
+    {
+      "date": "2026-10-28",
+      "location": "רמת גן",
+      "show": "",
+      "type": "",
+      "presenter": "",
+      "contact": "טלי",
+      "phone": "036753576",
+      "time": "19:00",
+      "address": "",
+      "count": 1,
+      "status": "",
+      "morning": false,
+      "notes": "",
+      "team": [],
+      "id": 31,
+      "calEventId": null
     }
   ],
   "teamPhones": {
