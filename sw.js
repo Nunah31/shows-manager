@@ -1,4 +1,4 @@
-const CACHE = 'shows-v2';
+const CACHE = 'shows-v3';
 const ASSETS = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -15,7 +15,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => e.respondWith(
-  fetch(e.request).then(res => {
+  fetch(e.request, { cache: 'no-store' }).then(res => {
     caches.open(CACHE).then(c => c.put(e.request, res.clone()));
     return res;
   }).catch(() => caches.match(e.request))
