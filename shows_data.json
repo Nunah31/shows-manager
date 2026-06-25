@@ -446,6 +446,24 @@
       "team": [],
       "id": 31,
       "calEventId": "lrqnqori58sohcru2lismeld1g"
+    },
+    {
+      "date": "2026-09-01",
+      "location": "עכו",
+      "show": "",
+      "type": "תיכון",
+      "presenter": "אנחנו",
+      "contact": "קובי",
+      "phone": "+972 54-456-2422",
+      "time": "09:00",
+      "address": "אורט דרסקי",
+      "count": 2,
+      "status": "",
+      "morning": true,
+      "notes": "",
+      "team": [],
+      "id": 32,
+      "calEventId": null
     }
   ],
   "teamPhones": {
