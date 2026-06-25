@@ -461,7 +461,12 @@
       "status": "",
       "morning": true,
       "notes": "",
-      "team": [],
+      "team": [
+        "בוריס – הגברה",
+        "קלידן ארנון שרון",
+        "עמית כהן",
+        "סקסופון – עמירם גרנות צפון"
+      ],
       "id": 32,
       "calEventId": "3bgvutilnsh9g6ba2pd47rufco"
     }
