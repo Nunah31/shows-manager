@@ -54,12 +54,13 @@
   .card-date { font-weight: 700; font-size: 18px; color: #1E3A5F; }
   .badge { font-size: 13px; padding: 3px 9px; border-radius: 10px; font-weight: 500; border: 1px solid; }
   .time-badge { font-size: 13px; padding: 3px 8px; border-radius: 10px; }
-  .card-location { font-size: 16px; color: #111827; }
-  .card-location span { color: #64748B; font-size: 15px; }
-  .card-show { font-size: 15px; color: #6B7280; margin-top: 2px; }
-  .card-presenter { font-size: 15px; color: #64748B; margin-top: 2px; }
+  .card-location { font-size: 18px; color: #111827; }
+  .card-location span { color: #64748B; font-size: 17px; }
+  .card-show { font-size: 17px; color: #6B7280; margin-top: 2px; }
+  .card-presenter { font-size: 17px; color: #64748B; margin-top: 2px; }
   .card-contact { font-size: 14px; color: #64748B; margin-top: 2px; }
-  .card-team { font-size: 14px; color: #7C3AED; margin-top: 2px; }
+  .card-contact a { color: #2563EB; text-decoration: none; font-weight: 600; }
+  .card-team { font-size: 16px; color: #7C3AED; margin-top: 2px; line-height: 1.4; }
   .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .card-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
@@ -131,12 +132,13 @@
     .card-date { font-size: 22px; }
     .badge { font-size: 15px; padding: 4px 11px; }
     .time-badge { font-size: 15px; padding: 4px 9px; }
-    .card-location { font-size: 19px; }
-    .card-location span { font-size: 17px; }
-    .card-show, .card-presenter { font-size: 17px; }
-    .card-contact, .card-team { font-size: 16px; }
+    .card-location { font-size: 21px; }
+    .card-location span { font-size: 18px; }
+    .card-show, .card-presenter { font-size: 19px; }
+    .card-contact { font-size: 16px; }
+    .card-team { font-size: 18px; }
     .card-notes { font-size: 15px; }
-    .icon-btn { font-size: 20px; padding: 8px 13px; }
+    .icon-btn { font-size: 18px; padding: 7px 10px; }
     .modal-title { font-size: 22px; }
     .field label { font-size: 16px; }
     .field input, .field select, .field textarea { font-size: 18px; padding: 11px 12px; }
@@ -182,6 +184,7 @@
       <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">מאושר</button>
       <button class="filter-btn" data-filter="morning" onclick="setFilter(this,'morning')">בוקר</button>
       <button class="filter-btn" data-filter="evening" onclick="setFilter(this,'evening')">ערב</button>
+      <button class="filter-btn" data-filter="cancelled" onclick="setFilter(this,'cancelled')">בוטל</button>
       <button class="filter-btn" data-filter="all" onclick="setFilter(this,'all')">הכל</button>
     </div>
     <div class="toolbar">
@@ -750,11 +753,12 @@ function getFiltered() {
   const today = new Date().toISOString().slice(0,10);
   let list = [...shows].sort((a,b) => a.date.localeCompare(b.date));
   if (currentFilter==='future')   return list.filter(s => s.date >= today && s.status !== 'cancelled');
-  if (currentFilter==='past')     return list.filter(s => s.date < today).reverse();
+  if (currentFilter==='past')     return list.filter(s => s.date < today && s.status !== 'cancelled').reverse();
   if (currentFilter==='approved') return list.filter(s => ['approved','done'].includes(s.status));
   if (currentFilter==='open')     return list.filter(s => ['open','pending','signature',''].includes(s.status));
   if (currentFilter==='morning')  return list.filter(s => s.morning && s.date >= today && s.status !== 'cancelled');
   if (currentFilter==='evening')  return list.filter(s => !s.morning && s.date >= today && s.status !== 'cancelled');
+  if (currentFilter==='cancelled') return list.filter(s => s.status === 'cancelled');
   return list;
 }
 
@@ -780,7 +784,8 @@ function render() {
     const isSel = selected.has(show.id);
     const isPast = show.date < today;
     const teamStr = show.team && show.team.length > 0 ? `👥 ${show.team.join(', ')}` : '';
-    const contactStr = show.contact ? `📞 ${show.contact}${show.phone ? ' · ' + show.phone : ''}` : '';
+    const phoneLink = show.phone ? `<a href="tel:${show.phone.replace(/\D/g,'')}" onclick="event.stopPropagation()">${show.phone}</a>` : '';
+    const contactStr = show.contact ? `📞 ${show.contact}${phoneLink ? ' · ' + phoneLink : ''}` : '';
     const timeStr = show.time ? ` · ${show.time}` : '';
     return `
     <div class="show-card${isSel?' selected':''}${isPast?' past':''}">
