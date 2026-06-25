@@ -64,7 +64,7 @@
   .card-team::after { content: ""; display: inline-block; width: 100%; }
   .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .card-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+  .card-actions { display: flex; flex-direction: row; gap: 6px; justify-content: flex-end; padding: 0 10px 10px; }
   .icon-btn { background: #EFF6FF; border: none; border-radius: 7px; padding: 6px 10px; cursor: pointer; font-size: 16px; line-height: 1; text-decoration: none; display: block; text-align: center; }
   .icon-btn:hover { background: #DBEAFE; }
 
@@ -873,7 +873,7 @@ function render() {
     <div class="show-card${isSel?' selected':''}${isPast?' past':''}">
       <div class="card-body">
         <div class="checkbox${isSel?' checked':''}" onclick="toggleSel(${show.id})"></div>
-        <div class="card-content" onclick="toggleSel(${show.id})">
+        <div class="card-content" onclick="toggleSel(${show.id})" style="flex:1;min-width:0">
           <div class="card-top">
             <span class="card-date">${fmtDate(show.date)}${timeStr}</span>
             <span class="badge" style="background:${s.bg};color:${s.text};border-color:${s.border}">${s.label}</span>
@@ -886,10 +886,10 @@ function render() {
           ${teamStr?`<div class="card-team">${teamStr}</div>`:''}
           ${show.notes?`<div class="card-notes">💬 ${show.notes}</div>`:''}
         </div>
-        <div class="card-actions">
-          <button class="icon-btn" onclick="openEdit(${show.id})">✏️</button>
-          <button class="icon-btn" onclick="handleCalClick(${show.id})" title="${show.calEventId?'עדכן אירוע ביומן':'הוסף ליומן'}">${show.calEventId?'📅✅':'📅'}</button>
-        </div>
+      </div>
+      <div class="card-actions">
+        <button class="icon-btn" onclick="openEdit(${show.id})">✏️</button>
+        <button class="icon-btn" onclick="handleCalClick(${show.id})" title="${show.calEventId?'עדכן אירוע ביומן':'הוסף ליומן'}">${show.calEventId?'📅✅':'📅'}</button>
       </div>
     </div>`;
   }).join('');
