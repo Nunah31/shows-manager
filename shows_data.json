@@ -490,6 +490,30 @@
       "team": [],
       "id": 33,
       "calEventId": "a339lhqqdj9a15nnmahh4b5teo"
+    },
+    {
+      "date": "2026-06-25",
+      "location": "כפר יונה",
+      "show": "מסע ישראלי",
+      "type": "יסודי",
+      "presenter": "אודימיוזיק",
+      "contact": "אודי",
+      "phone": "0522457457",
+      "time": "20:00",
+      "address": "",
+      "count": 1,
+      "status": "approved",
+      "morning": true,
+      "notes": "",
+      "team": [
+        "בוריס – הגברה",
+        "דניאל טהאן",
+        "עמית כהן",
+        "ניב רז",
+        "סקסופון - גיל סמואל"
+      ],
+      "id": 34,
+      "calEventId": null
     }
   ],
   "teamPhones": {
