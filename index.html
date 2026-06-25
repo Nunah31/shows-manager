@@ -28,8 +28,8 @@
 
   .sticky-bar { background: #F0F4FF; padding: 10px 0 4px; margin-bottom: 4px; }
 
-  .filters { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-  .filter-btn { padding: 7px 14px; border-radius: 20px; border: none; cursor: pointer; font-size: 15px; font-family: inherit; background: #E2E8F0; color: #374151; transition: all 0.15s; }
+  .filters { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 10px; border-radius: 16px; border: none; cursor: pointer; font-size: 15px; font-family: inherit; background: #E2E8F0; color: #374151; transition: all 0.15s; }
   .filter-btn.active { background: #2563EB; color: white; font-weight: 600; }
 
   .toolbar { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
@@ -58,7 +58,7 @@
   .card-location span { color: #64748B; font-size: 17px; }
   .card-show { font-size: 17px; color: #6B7280; margin-top: 2px; }
   .card-presenter { font-size: 17px; color: #64748B; margin-top: 2px; }
-  .card-contact { font-size: 14px; color: #64748B; margin-top: 2px; }
+  .card-contact { font-size: 14px; color: #64748B; margin-top: 2px; unicode-bidi: plaintext; }
   .card-contact a { color: #2563EB; text-decoration: none; font-weight: 600; }
   .card-team { font-size: 16px; color: #7C3AED; margin-top: 2px; line-height: 1.4; }
   .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -127,7 +127,7 @@
     .header h1 { font-size: 28px; }
     .header p { font-size: 17px; }
     .btn-export, .btn-add { font-size: 17px; padding: 12px 18px; }
-    .filter-btn { font-size: 17px; padding: 9px 16px; }
+    .filter-btn { font-size: 17px; padding: 6px 9px; }
     .btn-sm { font-size: 17px; padding: 9px 16px; }
     .card-date { font-size: 22px; }
     .badge { font-size: 15px; padding: 4px 11px; }
@@ -479,6 +479,57 @@ async function saveToGithub() {
   syncToSheets();
 }
 
+// ── אינטגרציה עם אפליקציית הכספים ────────────────────────────────────────────
+const FINANCE_GH_REPO = 'Nunah31/income-expense-tracker';
+const FINANCE_GH_FILE = 'finance-data.json';
+
+// יוצר שורות הוצאה (0 ש"ח) לכל איש צוות במופעים שהתקיימו ולא סונכרנו עדיין
+async function syncFinanceExpenses() {
+  const today = new Date().toISOString().slice(0,10);
+  const toProcess = shows.filter(s => s.date < today && !s.financeSynced && s.team && s.team.length > 0);
+  if (toProcess.length === 0) return;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const sha = d.sha;
+    const binary = atob(d.content.replace(/\n/g,''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const financeData = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    if (!Array.isArray(financeData.entries)) financeData.entries = [];
+
+    toProcess.forEach(show => {
+      show.team.forEach((member, idx) => {
+        financeData.entries.push({
+          id: `show_${show.id}_${idx}_${Date.now()}`,
+          type: 'expense',
+          name: member,
+          execDate: show.date,
+          payDate: '',
+          amount: 0,
+          status: 'unpaid',
+          paidDate: '',
+          notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
+        });
+      });
+      show.financeSynced = true;
+    });
+
+    const jsonStr = JSON.stringify(financeData, null, 2);
+    const bytes2 = new TextEncoder().encode(jsonStr);
+    let binary2 = '';
+    bytes2.forEach(b => binary2 += String.fromCharCode(b));
+    const content = btoa(binary2);
+    await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
+      { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'הוצאות אוטומטיות ממופעים', content, sha }) });
+
+    await saveToGithub(); // שמור את הדגל financeSynced על המופעים
+  } catch(e) { /* כשל שקט — ינסה שוב בפעם הבאה */ }
+}
+
 function syncToSheets() {
   if (!SCRIPT_URL) return;
   try {
@@ -784,7 +835,7 @@ function render() {
     const isSel = selected.has(show.id);
     const isPast = show.date < today;
     const teamStr = show.team && show.team.length > 0 ? `👥 ${show.team.join(', ')}` : '';
-    const phoneLink = show.phone ? `<a href="tel:${show.phone.replace(/\D/g,'')}" onclick="event.stopPropagation()">${show.phone}</a>` : '';
+    const phoneLink = show.phone ? `<a href="tel:${show.phone.replace(/\D/g,'')}" dir="ltr" style="display:inline-block;unicode-bidi:isolate" onclick="event.stopPropagation()">${show.phone}</a>` : '';
     const contactStr = show.contact ? `📞 ${show.contact}${phoneLink ? ' · ' + phoneLink : ''}` : '';
     const timeStr = show.time ? ` · ${show.time}` : '';
     return `
@@ -1277,6 +1328,7 @@ async function init() {
   if (window.google) { initGoogleAuth(); }
   else { window.addEventListener('load', () => { if(window.google) initGoogleAuth(); }); }
   updateHeaderHeight();
+  syncFinanceExpenses(); // ברקע — יוצר הוצאות לנגנים על מופעים שהתקיימו
 }
 
 // עדכון גובה הכותרת בפועל — כדי שהסרגל הדביק לא יחפוף/יחביא שורות
