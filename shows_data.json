@@ -227,7 +227,8 @@
         "בוריס – הגברה"
       ],
       "id": 18,
-      "calEventId": "aqgsuivmgjcnfr76iecvv1f7ao"
+      "calEventId": "aqgsuivmgjcnfr76iecvv1f7ao",
+      "financeSynced": true
     },
     {
       "date": "2026-06-16",
@@ -251,7 +252,8 @@
         "סקסופון - אריאל אשקלון"
       ],
       "id": 19,
-      "calEventId": "q37a7mtqhb7bgvunb8oph7qcms"
+      "calEventId": "q37a7mtqhb7bgvunb8oph7qcms",
+      "financeSynced": true
     },
     {
       "date": "2026-06-18",
@@ -275,7 +277,8 @@
         "סקסופון - גיל סמואל"
       ],
       "id": 20,
-      "calEventId": "grvkljrs1pd6gg11fas7nhec9g"
+      "calEventId": "grvkljrs1pd6gg11fas7nhec9g",
+      "financeSynced": true
     },
     {
       "date": "2026-06-28",
