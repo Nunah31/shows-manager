@@ -1631,6 +1631,13 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
+  // ברגע שגרסה חדשה תופסת שליטה — רענן את הדף אוטומטית (פעם אחת)
+  let _swRefreshed = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_swRefreshed) return;
+    _swRefreshed = true;
+    window.location.reload();
+  });
 }
 </script>
 
