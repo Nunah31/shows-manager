@@ -749,12 +749,12 @@ function buildCalUrl(s) {
 function getFiltered() {
   const today = new Date().toISOString().slice(0,10);
   let list = [...shows].sort((a,b) => a.date.localeCompare(b.date));
-  if (currentFilter==='future')   return list.filter(s => s.date >= today);
+  if (currentFilter==='future')   return list.filter(s => s.date >= today && s.status !== 'cancelled');
   if (currentFilter==='past')     return list.filter(s => s.date < today).reverse();
   if (currentFilter==='approved') return list.filter(s => ['approved','done'].includes(s.status));
   if (currentFilter==='open')     return list.filter(s => ['open','pending','signature',''].includes(s.status));
-  if (currentFilter==='morning')  return list.filter(s => s.morning && s.date >= today);
-  if (currentFilter==='evening')  return list.filter(s => !s.morning && s.date >= today);
+  if (currentFilter==='morning')  return list.filter(s => s.morning && s.date >= today && s.status !== 'cancelled');
+  if (currentFilter==='evening')  return list.filter(s => !s.morning && s.date >= today && s.status !== 'cancelled');
   return list;
 }
 
