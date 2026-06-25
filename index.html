@@ -60,7 +60,8 @@
   .card-presenter { font-size: 17px; color: #64748B; margin-top: 2px; }
   .card-contact { font-size: 14px; color: #64748B; margin-top: 2px; unicode-bidi: plaintext; }
   .card-contact a { color: #2563EB; text-decoration: none; font-weight: 600; }
-  .card-team { font-size: 16px; color: #7C3AED; margin-top: 2px; line-height: 1.4; }
+  .card-team { font-size: 16px; color: #7C3AED; margin-top: 2px; line-height: 1.4; text-align: justify; text-justify: inter-word; }
+  .card-team::after { content: ""; display: inline-block; width: 100%; }
   .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .card-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
@@ -486,7 +487,7 @@ const FINANCE_GH_FILE = 'finance-data.json';
 // יוצר שורות הוצאה (0 ש"ח) לכל איש צוות במופעים שהתקיימו ולא סונכרנו עדיין
 async function syncFinanceExpenses() {
   const today = new Date().toISOString().slice(0,10);
-  const toProcess = shows.filter(s => s.date < today && !s.financeSynced && s.team && s.team.length > 0);
+  const toProcess = shows.filter(s => s.date < today && !s.financeSynced);
   if (toProcess.length === 0) return;
   try {
     const r = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
@@ -501,7 +502,8 @@ async function syncFinanceExpenses() {
     if (!Array.isArray(financeData.entries)) financeData.entries = [];
 
     toProcess.forEach(show => {
-      show.team.forEach((member, idx) => {
+      // הוצאה לכל איש צוות
+      (show.team || []).forEach((member, idx) => {
         financeData.entries.push({
           id: `show_${show.id}_${idx}_${Date.now()}`,
           type: 'expense',
@@ -514,6 +516,33 @@ async function syncFinanceExpenses() {
           notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
         });
       });
+      // הכנסה על המופע עצמו — מיקום + הפקה
+      const incomeName = [show.location, show.presenter].filter(Boolean).join(' ');
+      financeData.entries.push({
+        id: `show_income_${show.id}_${Date.now()}`,
+        type: 'income',
+        name: incomeName,
+        execDate: show.date,
+        payDate: '',
+        amount: 0,
+        status: 'unpaid',
+        paidDate: '',
+        notes: `מופע ${fmtDate(show.date)}`,
+      });
+      // אם ההפקה היא מנשה אמיר — הוצאה נוספת בשם מנשה אמיר
+      if (show.presenter === 'מנשה אמיר') {
+        financeData.entries.push({
+          id: `show_presenter_${show.id}_${Date.now()}`,
+          type: 'expense',
+          name: 'מנשה אמיר',
+          execDate: show.date,
+          payDate: '',
+          amount: 0,
+          status: 'unpaid',
+          paidDate: '',
+          notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
+        });
+      }
       show.financeSynced = true;
     });
 
@@ -850,8 +879,7 @@ function render() {
             ${show.count>1?`<span style="font-size:13px;color:#64748B">🔁 ${show.count}×</span>`:''}
           </div>
           <div class="card-location">📍 <strong>${show.location}</strong>${show.type?` <span>· ${show.type}</span>`:''}</div>
-          ${show.show?`<div class="card-show">🎭 ${show.show}</div>`:''}
-          <div class="card-presenter">👤 ${show.presenter}</div>
+          <div class="card-show">${show.show?`🎭 ${show.show}`:''}${show.show && show.presenter?' · ':''}${show.presenter?`👤 ${show.presenter}`:''}</div>
           ${contactStr?`<div class="card-contact">${contactStr}</div>`:''}
           ${teamStr?`<div class="card-team">${teamStr}</div>`:''}
           ${show.notes?`<div class="card-notes">💬 ${show.notes}</div>`:''}
