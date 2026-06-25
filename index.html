@@ -43,7 +43,7 @@
   .show-card { background: white; border-radius: 12px; border: 2px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: all 0.12s; }
   .show-card.selected { border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
   .show-card.past { opacity: 0.65; }
-  .card-body { padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
+  .card-body { padding: 12px 10px; display: flex; gap: 8px; align-items: flex-start; }
 
   .checkbox { width: 22px; height: 22px; border-radius: 5px; border: 2px solid #CBD5E1; background: white; flex-shrink: 0; margin-top: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
   .checkbox.checked { background: #2563EB; border-color: #2563EB; }
@@ -139,7 +139,7 @@
     .card-contact { font-size: 16px; }
     .card-team { font-size: 18px; }
     .card-notes { font-size: 15px; }
-    .icon-btn { font-size: 18px; padding: 7px 10px; }
+    .icon-btn { font-size: 18px; padding: 6px 7px; }
     .modal-title { font-size: 22px; }
     .field label { font-size: 16px; }
     .field input, .field select, .field textarea { font-size: 18px; padding: 11px 12px; }
@@ -863,9 +863,11 @@ function render() {
     const s = STATUS_CFG[show.status] || STATUS_CFG[''];
     const isSel = selected.has(show.id);
     const isPast = show.date < today;
-    const teamStr = show.team && show.team.length > 0 ? `👥 ${show.team.join(', ')}` : '';
-    const phoneLink = show.phone ? `<a href="tel:${show.phone.replace(/\D/g,'')}" dir="ltr" style="display:inline-block;unicode-bidi:isolate" onclick="event.stopPropagation()">${show.phone}</a>` : '';
-    const contactStr = show.contact ? `📞 ${show.contact}${phoneLink ? ' · ' + phoneLink : ''}` : '';
+    const teamStr = show.team && show.team.length > 0
+      ? `👥 ${show.team.map(n => `<span style="white-space:nowrap">${n}</span>`).join(', ')}`
+      : '';
+    const phoneLink = show.phone ? `<a href="tel:${show.phone.replace(/\D/g,'')}" dir="ltr" style="unicode-bidi:isolate;white-space:nowrap" onclick="event.stopPropagation()">${show.phone}</a>` : '';
+    const contactStr = show.contact ? `<span style="white-space:nowrap">📞 ${show.contact}</span>${phoneLink ? ' · ' + phoneLink : ''}` : '';
     const timeStr = show.time ? ` · ${show.time}` : '';
     return `
     <div class="show-card${isSel?' selected':''}${isPast?' past':''}">
@@ -879,7 +881,7 @@ function render() {
             ${show.count>1?`<span style="font-size:13px;color:#64748B">🔁 ${show.count}×</span>`:''}
           </div>
           <div class="card-location">📍 <strong>${show.location}</strong>${show.type?` <span>· ${show.type}</span>`:''}</div>
-          <div class="card-show">${show.show?`🎭 ${show.show}`:''}${show.show && show.presenter?' · ':''}${show.presenter?`👤 ${show.presenter}`:''}</div>
+          <div class="card-show">${show.show?`<span style="white-space:nowrap">🎭 ${show.show}</span>`:''}${show.show && show.presenter?' · ':''}${show.presenter?`<span style="white-space:nowrap">👤 ${show.presenter}</span>`:''}</div>
           ${contactStr?`<div class="card-contact">${contactStr}</div>`:''}
           ${teamStr?`<div class="card-team">${teamStr}</div>`:''}
           ${show.notes?`<div class="card-notes">💬 ${show.notes}</div>`:''}
