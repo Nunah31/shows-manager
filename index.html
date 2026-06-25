@@ -250,9 +250,38 @@
       </div>
       <div class="field form-full"><label>מיקום *</label><input type="text" id="f-location" placeholder="עיר / מוסד"></div>
       <div class="field form-full"><label>📍 כתובת מדויקת</label><input type="text" id="f-address" placeholder="רחוב, עיר..."></div>
-      <div class="field form-full"><label>שם המופע / תוכנית</label><input type="text" id="f-show" placeholder="מסע ישראלי / לאהבה שלי אין סוף..."></div>
-      <div class="field"><label>שכבת גיל / קהל</label><input type="text" id="f-type" placeholder="יסודי / תיכון..."></div>
-      <div class="field"><label>מי מביא</label><input type="text" id="f-presenter" placeholder="מנשה / אנחנו..."></div>
+      <div class="field form-full">
+        <label>שם המופע / תוכנית</label>
+        <select id="f-show-select" onchange="onShowSelectChange()">
+          <option value="מסע ישראלי">מסע ישראלי</option>
+          <option value="מופע למבוגרים">מופע למבוגרים</option>
+          <option value="ברוח מזרחית">ברוח מזרחית</option>
+          <option value="מופע סליחות">מופע סליחות</option>
+          <option value="לאהבה שלי אין סוף">לאהבה שלי אין סוף</option>
+          <option value="__other__">אחר...</option>
+        </select>
+        <input type="text" id="f-show" placeholder="הזיני שם מופע..." style="display:none;margin-top:8px">
+      </div>
+      <div class="field">
+        <label>שכבת גיל / קהל</label>
+        <select id="f-type">
+          <option value="יסודי">יסודי</option>
+          <option value="חטיבה">חטיבה</option>
+          <option value="תיכון">תיכון</option>
+          <option value="מבוגרים">מבוגרים</option>
+          <option value="גיל שלישי">גיל שלישי</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>מי מביא</label>
+        <select id="f-presenter-select" onchange="onPresenterSelectChange()">
+          <option value="אנחנו">אנחנו</option>
+          <option value="מנשה">מנשה</option>
+          <option value="אמיר">אמיר</option>
+          <option value="__other__">אחר...</option>
+        </select>
+        <input type="text" id="f-presenter" placeholder="הזיני שם..." style="display:none;margin-top:8px">
+      </div>
       <div class="field"><label>איש קשר</label><input type="text" id="f-contact" placeholder="שם איש הקשר"></div>
       <div class="field"><label>טלפון</label><input type="tel" id="f-phone" placeholder="050-0000000" dir="ltr"></div>
       <div class="field"><label>שעת המופע</label>
@@ -835,6 +864,14 @@ function openAdd() {
   document.getElementById('f-date-text').textContent = 'בחר תאריך';
   document.getElementById('f-time-text').textContent = 'בחר שעה';
   document.getElementById('f-time-clear').style.display = 'none';
+  // ברירות מחדל לשם מופע / מי מביא / שכבת גיל
+  document.getElementById('f-show-select').value = 'מסע ישראלי';
+  document.getElementById('f-show').value = 'מסע ישראלי';
+  document.getElementById('f-show').style.display = 'none';
+  document.getElementById('f-presenter-select').value = 'אנחנו';
+  document.getElementById('f-presenter').value = 'אנחנו';
+  document.getElementById('f-presenter').style.display = 'none';
+  document.getElementById('f-type').value = 'יסודי';
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -859,9 +896,9 @@ function openEdit(id) {
   document.getElementById('f-time-clear').style.display = show.time ? '' : 'none';
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-address').value = show.address || '';
-  document.getElementById('f-show').value = show.show || '';
-  document.getElementById('f-type').value = show.type || '';
-  document.getElementById('f-presenter').value = show.presenter || '';
+  setSelectOrOther('f-show-select', 'f-show', ['מסע ישראלי','מופע למבוגרים','ברוח מזרחית','מופע סליחות','לאהבה שלי אין סוף'], show.show || '');
+  document.getElementById('f-type').value = show.type || 'יסודי';
+  setSelectOrOther('f-presenter-select', 'f-presenter', ['אנחנו','מנשה','אמיר'], show.presenter || '');
   document.getElementById('f-contact').value = show.contact || '';
   document.getElementById('f-phone').value = show.phone || '';
   document.getElementById('f-count').value = show.count || 1;
@@ -891,6 +928,47 @@ function setMorning(val) {
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+// בחירה מתוך רשימה עם אופציית "אחר" — מציג שדה טקסט חופשי
+function setSelectOrOther(selectId, inputId, presetValues, value) {
+  const sel = document.getElementById(selectId);
+  const input = document.getElementById(inputId);
+  if (value && presetValues.includes(value)) {
+    sel.value = value;
+    input.value = value;
+    input.style.display = 'none';
+  } else {
+    sel.value = '__other__';
+    input.value = value || '';
+    input.style.display = '';
+  }
+}
+
+function onShowSelectChange() {
+  const sel = document.getElementById('f-show-select');
+  const input = document.getElementById('f-show');
+  if (sel.value === '__other__') {
+    input.style.display = '';
+    input.value = '';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+    input.value = sel.value;
+  }
+}
+
+function onPresenterSelectChange() {
+  const sel = document.getElementById('f-presenter-select');
+  const input = document.getElementById('f-presenter');
+  if (sel.value === '__other__') {
+    input.style.display = '';
+    input.value = '';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+    input.value = sel.value;
+  }
+}
 
 async function saveForm() {
   const date = document.getElementById('f-date').value;
