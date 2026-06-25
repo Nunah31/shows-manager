@@ -10,7 +10,8 @@
       "show": "צבא",
       "status": "done",
       "morning": false,
-      "notes": "2 נגנים"
+      "notes": "2 נגנים",
+      "financeSynced": true
     },
     {
       "id": 2,
@@ -22,7 +23,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "מופע 1 - 10:30  מופע 2 - 12:00"
+      "notes": "מופע 1 - 10:30  מופע 2 - 12:00",
+      "financeSynced": true
     },
     {
       "id": 3,
@@ -34,7 +36,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": ""
+      "notes": "",
+      "financeSynced": true
     },
     {
       "id": 4,
@@ -46,7 +49,8 @@
       "show": "הוד השרון",
       "status": "done",
       "morning": true,
-      "notes": "פחות עממי לתאם עם טלי"
+      "notes": "פחות עממי לתאם עם טלי",
+      "financeSynced": true
     },
     {
       "id": 5,
@@ -58,7 +62,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": false,
-      "notes": "ערב"
+      "notes": "ערב",
+      "financeSynced": true
     },
     {
       "id": 6,
@@ -70,7 +75,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "ישלמו לאמיר והוא יעביר לנו"
+      "notes": "ישלמו לאמיר והוא יעביר לנו",
+      "financeSynced": true
     },
     {
       "id": 7,
@@ -82,7 +88,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": ""
+      "notes": "",
+      "financeSynced": true
     },
     {
       "id": 8,
@@ -94,7 +101,8 @@
       "show": "יום המעשים הטובים",
       "status": "done",
       "morning": true,
-      "notes": "רעות רמת ורבר"
+      "notes": "רעות רמת ורבר",
+      "financeSynced": true
     },
     {
       "id": 9,
@@ -106,7 +114,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "9:30  11:00"
+      "notes": "9:30  11:00",
+      "financeSynced": true
     },
     {
       "id": 10,
@@ -118,7 +127,8 @@
       "show": "מבוגרים",
       "status": "done",
       "morning": false,
-      "notes": "ערב"
+      "notes": "ערב",
+      "financeSynced": true
     },
     {
       "id": 11,
@@ -130,7 +140,8 @@
       "show": "מסע ישראלי",
       "status": "open",
       "morning": true,
-      "notes": "צריך לתאם לשנה הבאה"
+      "notes": "צריך לתאם לשנה הבאה",
+      "financeSynced": true
     },
     {
       "id": 12,
@@ -142,7 +153,8 @@
       "show": "שירי לוחמים",
       "status": "done",
       "morning": true,
-      "notes": "אולם ספורט"
+      "notes": "אולם ספורט",
+      "financeSynced": true
     },
     {
       "id": 13,
@@ -154,7 +166,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "תחילת מופע 12:00"
+      "notes": "תחילת מופע 12:00",
+      "financeSynced": true
     },
     {
       "id": 14,
@@ -166,7 +179,8 @@
       "show": "הופעה ישראלית",
       "status": "done",
       "morning": true,
-      "notes": "תחילת מופע 11:00"
+      "notes": "תחילת מופע 11:00",
+      "financeSynced": true
     },
     {
       "id": 15,
@@ -178,7 +192,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "כבר שולם בצ'ק ב-15.9.25"
+      "notes": "כבר שולם בצ'ק ב-15.9.25",
+      "financeSynced": true
     },
     {
       "id": 16,
@@ -190,7 +205,8 @@
       "show": "מסע ישראלי",
       "status": "done",
       "morning": true,
-      "notes": "מועצה איזורית שפיר"
+      "notes": "מועצה איזורית שפיר",
+      "financeSynced": true
     },
     {
       "id": 17,
@@ -202,7 +218,8 @@
       "show": "שבועות יום ירושלים",
       "status": "done",
       "morning": true,
-      "notes": "רעות רמת ורבר"
+      "notes": "רעות רמת ורבר",
+      "financeSynced": true
     },
     {
       "date": "2026-06-14",
