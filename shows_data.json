@@ -469,6 +469,24 @@
       ],
       "id": 32,
       "calEventId": "3bgvutilnsh9g6ba2pd47rufco"
+    },
+    {
+      "date": "2027-01-31",
+      "location": "תיכון נבון יבנה",
+      "show": "מסע ישראלי",
+      "type": "תיכון",
+      "presenter": "מנשה",
+      "contact": "",
+      "phone": "",
+      "time": "",
+      "address": "",
+      "count": 1,
+      "status": "pending",
+      "morning": true,
+      "notes": "",
+      "team": [],
+      "id": 33,
+      "calEventId": null
     }
   ],
   "teamPhones": {
