@@ -160,14 +160,14 @@
 
 <!-- Header -->
 <div class="header">
-  <div class="header-inner" style="flex-direction:column;align-items:stretch;gap:8px">
-    <div style="min-width:0;text-align:center">
-      <h1 style="white-space:nowrap">🎵 ניהול מופעים</h1>
-      <p id="show-count" style="white-space:nowrap"></p>
+  <div class="header-inner">
+    <div>
+      <h1>🎵 מופעים</h1>
+      <p id="show-count"></p>
     </div>
-    <div style="display:flex;gap:8px;justify-content:center">
+    <div style="display:flex;gap:8px">
       <button class="btn-export" onclick="openSettings()" title="הגדרות">⚙️</button>
-      <button class="btn-add" onclick="openAdd()" style="white-space:nowrap">➕ מופע חדש</button>
+      <button class="btn-add" onclick="openAdd()">➕ מופע חדש</button>
     </div>
   </div>
 </div>
@@ -176,16 +176,15 @@
   <!-- Filters + Toolbar (sticky) -->
   <div class="sticky-bar">
     <div class="filters" id="filters">
-      <button class="filter-btn active" data-filter="future" onclick="setFilter(this,'future')">עתידיים</button>
+      <button class="filter-btn active" data-filter="future" onclick="setFilter(this,'future')">עתידי</button>
       <button class="filter-btn" data-filter="past" onclick="setFilter(this,'past')">עבר</button>
-      <button class="filter-btn" data-filter="open" onclick="setFilter(this,'open')">לא סגורים ❓</button>
-      <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">מאושרים</button>
-      <button class="filter-btn" data-filter="morning" onclick="setFilter(this,'morning')">בוקר ☀️</button>
-      <button class="filter-btn" data-filter="evening" onclick="setFilter(this,'evening')">ערב 🌙</button>
+      <button class="filter-btn" data-filter="open" onclick="setFilter(this,'open')">לא סגור</button>
+      <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">מאושר</button>
+      <button class="filter-btn" data-filter="morning" onclick="setFilter(this,'morning')">בוקר</button>
+      <button class="filter-btn" data-filter="evening" onclick="setFilter(this,'evening')">ערב</button>
       <button class="filter-btn" data-filter="all" onclick="setFilter(this,'all')">הכל</button>
     </div>
     <div class="toolbar">
-      <button class="btn-sm btn-outline-blue" onclick="selectAll()">בחר הכל</button>
       <button class="btn-sm btn-outline-red" id="btn-clear" style="display:none" onclick="clearSel()">נקה בחירה</button>
       <button class="btn-sm btn-solid-blue" id="btn-send" style="display:none" onclick="openSend()">📤 שלח לנגנים</button>
     </div>
@@ -263,20 +262,20 @@
       </div>
       <div class="field">
         <label>שכבת גיל / קהל</label>
-        <select id="f-type">
+        <select id="f-type-select" onchange="onTypeSelectChange()">
           <option value="יסודי">יסודי</option>
-          <option value="חטיבה">חטיבה</option>
-          <option value="תיכון">תיכון</option>
+          <option value="חטיבה/תיכון">חטיבה/תיכון</option>
           <option value="מבוגרים">מבוגרים</option>
-          <option value="גיל שלישי">גיל שלישי</option>
+          <option value="גימלאים">גימלאים</option>
+          <option value="__other__">אחר...</option>
         </select>
+        <input type="text" id="f-type" placeholder="הזיני שכבת גיל..." style="display:none;margin-top:8px">
       </div>
       <div class="field">
-        <label>מי מביא</label>
+        <label>הפקה</label>
         <select id="f-presenter-select" onchange="onPresenterSelectChange()">
-          <option value="אנחנו">אנחנו</option>
-          <option value="מנשה">מנשה</option>
-          <option value="אמיר">אמיר</option>
+          <option value="אודימיוזיק">אודימיוזיק</option>
+          <option value="מנשה אמיר">מנשה אמיר</option>
           <option value="__other__">אחר...</option>
         </select>
         <input type="text" id="f-presenter" placeholder="הזיני שם..." style="display:none;margin-top:8px">
@@ -863,14 +862,16 @@ function openAdd() {
   document.getElementById('f-date-text').textContent = 'בחר תאריך';
   document.getElementById('f-time-text').textContent = 'בחר שעה';
   document.getElementById('f-time-clear').style.display = 'none';
-  // ברירות מחדל לשם מופע / מי מביא / שכבת גיל
+  // ברירות מחדל לשם מופע / הפקה / שכבת גיל
   document.getElementById('f-show-select').value = 'מסע ישראלי';
   document.getElementById('f-show').value = 'מסע ישראלי';
   document.getElementById('f-show').style.display = 'none';
-  document.getElementById('f-presenter-select').value = 'אנחנו';
-  document.getElementById('f-presenter').value = 'אנחנו';
+  document.getElementById('f-presenter-select').value = 'אודימיוזיק';
+  document.getElementById('f-presenter').value = 'אודימיוזיק';
   document.getElementById('f-presenter').style.display = 'none';
+  document.getElementById('f-type-select').value = 'יסודי';
   document.getElementById('f-type').value = 'יסודי';
+  document.getElementById('f-type').style.display = 'none';
   document.getElementById('f-count').value = 1;
   document.getElementById('f-status').value = '';
   setMorning(true);
@@ -896,8 +897,15 @@ function openEdit(id) {
   document.getElementById('f-location').value = show.location;
   document.getElementById('f-address').value = show.address || '';
   setSelectOrOther('f-show-select', 'f-show', ['מסע ישראלי','מופע למבוגרים','ברוח מזרחית','מופע סליחות','לאהבה שלי אין סוף'], show.show || '');
-  document.getElementById('f-type').value = show.type || 'יסודי';
-  setSelectOrOther('f-presenter-select', 'f-presenter', ['אנחנו','מנשה','אמיר'], show.presenter || '');
+  // נרמול נתונים ישנים: חטיבה/תיכון בנפרד → חטיבה/תיכון; אנחנו/מנשה/אמיר → אודימיוזיק / מנשה אמיר
+  let typeVal = show.type || 'יסודי';
+  if (typeVal === 'חטיבה' || typeVal === 'תיכון') typeVal = 'חטיבה/תיכון';
+  if (typeVal === 'גיל שלישי') typeVal = 'גימלאים';
+  setSelectOrOther('f-type-select', 'f-type', ['יסודי','חטיבה/תיכון','מבוגרים','גימלאים'], typeVal);
+  let presenterVal = show.presenter || 'אודימיוזיק';
+  if (presenterVal === 'אנחנו') presenterVal = 'אודימיוזיק';
+  if (presenterVal === 'מנשה' || presenterVal === 'אמיר') presenterVal = 'מנשה אמיר';
+  setSelectOrOther('f-presenter-select', 'f-presenter', ['אודימיוזיק','מנשה אמיר'], presenterVal);
   document.getElementById('f-contact').value = show.contact || '';
   document.getElementById('f-phone').value = show.phone || '';
   document.getElementById('f-count').value = show.count || 1;
@@ -959,6 +967,19 @@ function onShowSelectChange() {
 function onPresenterSelectChange() {
   const sel = document.getElementById('f-presenter-select');
   const input = document.getElementById('f-presenter');
+  if (sel.value === '__other__') {
+    input.style.display = '';
+    input.value = '';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+    input.value = sel.value;
+  }
+}
+
+function onTypeSelectChange() {
+  const sel = document.getElementById('f-type-select');
+  const input = document.getElementById('f-type');
   if (sel.value === '__other__') {
     input.style.display = '';
     input.value = '';
