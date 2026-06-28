@@ -550,6 +550,7 @@ async function syncFinanceForShow(showId) {
 
     const newEntries = buildFinanceEntriesForShow(show);
     financeData.entries.push(...newEntries);
+    financeData.savedAt = new Date().toISOString(); // עדכון חותמת — כדי שאפליקציית הכספים תקלוט את העדכון
 
     const jsonStr = JSON.stringify(financeData, null, 2);
     const bytes2 = new TextEncoder().encode(jsonStr);
@@ -598,6 +599,7 @@ async function syncFinanceExpenses(manual) {
     toProcess.forEach(show => {
       financeData.entries.push(...buildFinanceEntriesForShow(show));
     });
+    financeData.savedAt = new Date().toISOString(); // עדכון חותמת — כדי שאפליקציית הכספים תקלוט את העדכון
 
     const jsonStr = JSON.stringify(financeData, null, 2);
     const bytes2 = new TextEncoder().encode(jsonStr);
