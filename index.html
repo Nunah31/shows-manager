@@ -484,6 +484,95 @@ const FINANCE_GH_REPO = 'Nunah31/income-expense-tracker';
 const FINANCE_GH_FILE = 'finance-data.json';
 
 // יוצר שורות הוצאה (0 ש"ח) לכל איש צוות במופעים שהתקיימו ולא סונכרנו עדיין
+// בונה את רשומות ההכנסה/הוצאה למופע בודד
+function buildFinanceEntriesForShow(show) {
+  const entries = [];
+  (show.team || []).forEach((member, idx) => {
+    entries.push({
+      id: `show_${show.id}_${idx}_${Date.now()}`,
+      type: 'expense',
+      name: member,
+      execDate: show.date,
+      payDate: '',
+      amount: 0,
+      status: 'unpaid',
+      paidDate: '',
+      notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
+    });
+  });
+  const incomeName = [show.location, show.presenter].filter(Boolean).join(' ');
+  entries.push({
+    id: `show_income_${show.id}_${Date.now()}`,
+    type: 'income',
+    name: incomeName,
+    execDate: show.date,
+    payDate: '',
+    amount: 0,
+    status: 'unpaid',
+    paidDate: '',
+    notes: `מופע ${fmtDate(show.date)}`,
+  });
+  if (show.presenter === 'מנשה אמיר') {
+    entries.push({
+      id: `show_presenter_${show.id}_${Date.now()}`,
+      type: 'expense',
+      name: 'מנשה אמיר',
+      execDate: show.date,
+      payDate: '',
+      amount: 0,
+      status: 'unpaid',
+      paidDate: '',
+      notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
+    });
+  }
+  return entries;
+}
+
+// סנכרון ידני למופע בודד — כפתור 🏁 על כרטיס המופע
+async function syncFinanceForShow(showId) {
+  const show = shows.find(s => s.id === showId);
+  if (!show) return;
+  if (show.financeSynced && !confirm('המופע הזה כבר סונכרן לכספים בעבר. לסנכרן שוב? (ייתכן וייווצרו רשומות כפולות)')) return;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
+    if (!r.ok) {
+      alert(`שגיאה בטעינת קובץ הכספים (קוד ${r.status}).\nבדקי שה-GitHub Token בהגדרות בעל הרשאת repo מלאה גם לריפו income-expense-tracker.`);
+      return;
+    }
+    const d = await r.json();
+    const sha = d.sha;
+    const binary = atob(d.content.replace(/\n/g,''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const financeData = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    if (!Array.isArray(financeData.entries)) financeData.entries = [];
+
+    const newEntries = buildFinanceEntriesForShow(show);
+    financeData.entries.push(...newEntries);
+
+    const jsonStr = JSON.stringify(financeData, null, 2);
+    const bytes2 = new TextEncoder().encode(jsonStr);
+    let binary2 = '';
+    bytes2.forEach(b => binary2 += String.fromCharCode(b));
+    const content = btoa(binary2);
+    const putR = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
+      { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `כספים למופע ${fmtDate(show.date)}`, content, sha }) });
+
+    if (!putR.ok) {
+      alert(`שגיאה בשמירה לכספים (קוד ${putR.status}).`);
+      return;
+    }
+    show.financeSynced = true;
+    await saveToGithub();
+    render();
+    alert(`בוצע! נוספו ${newEntries.length} רשומות הכנסה/הוצאה למופע 🏁`);
+  } catch(e) {
+    alert('שגיאת רשת: ' + e.message);
+  }
+}
+
 async function syncFinanceExpenses(manual) {
   const today = new Date().toISOString().slice(0,10);
   const toProcess = shows.filter(s => s.date < today && !s.financeSynced);
@@ -507,47 +596,7 @@ async function syncFinanceExpenses(manual) {
     if (!Array.isArray(financeData.entries)) financeData.entries = [];
 
     toProcess.forEach(show => {
-      // הוצאה לכל איש צוות
-      (show.team || []).forEach((member, idx) => {
-        financeData.entries.push({
-          id: `show_${show.id}_${idx}_${Date.now()}`,
-          type: 'expense',
-          name: member,
-          execDate: show.date,
-          payDate: '',
-          amount: 0,
-          status: 'unpaid',
-          paidDate: '',
-          notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
-        });
-      });
-      // הכנסה על המופע עצמו — מיקום + הפקה
-      const incomeName = [show.location, show.presenter].filter(Boolean).join(' ');
-      financeData.entries.push({
-        id: `show_income_${show.id}_${Date.now()}`,
-        type: 'income',
-        name: incomeName,
-        execDate: show.date,
-        payDate: '',
-        amount: 0,
-        status: 'unpaid',
-        paidDate: '',
-        notes: `מופע ${fmtDate(show.date)}`,
-      });
-      // אם ההפקה היא מנשה אמיר — הוצאה נוספת בשם מנשה אמיר
-      if (show.presenter === 'מנשה אמיר') {
-        financeData.entries.push({
-          id: `show_presenter_${show.id}_${Date.now()}`,
-          type: 'expense',
-          name: 'מנשה אמיר',
-          execDate: show.date,
-          payDate: '',
-          amount: 0,
-          status: 'unpaid',
-          paidDate: '',
-          notes: `מופע ${show.location || ''} ${fmtDate(show.date)}`.trim(),
-        });
-      }
+      financeData.entries.push(...buildFinanceEntriesForShow(show));
     });
 
     const jsonStr = JSON.stringify(financeData, null, 2);
@@ -905,6 +954,7 @@ function render() {
       <div class="card-actions">
         <button class="icon-btn" onclick="openEdit(${show.id})">✏️</button>
         <button class="icon-btn" onclick="handleCalClick(${show.id})" title="${show.calEventId?'עדכן אירוע ביומן':'הוסף ליומן'}">${show.calEventId?'📅✅':'📅'}</button>
+        <button class="icon-btn" onclick="syncFinanceForShow(${show.id})" title="${show.financeSynced?'עודכן בכספים — לחצי לעדכן שוב':'סנכרן הכנסה/הוצאה לכספים'}">${show.financeSynced?'🏁✅':'🏁'}</button>
       </div>
     </div>`;
   }).join('');
