@@ -687,7 +687,8 @@ function buildCalEvent(show) {
   if (show.show) titleParts.push(show.show);
   if (!wePresent && show.presenter) titleParts.push(show.presenter);
   if (show.count > 1) titleParts.push(`${show.count} סבבים`);
-  const summary = titleParts.join(' | ') || `מופע - ${show.location}`;
+  let summary = titleParts.join(' | ') || `מופע - ${show.location}`;
+  if (show.status === 'cancelled') summary = `בוטל - ${summary}`;
   let descParts = [];
   if (show.contact) descParts.push(`איש קשר: ${show.contact}${show.phone?' | '+show.phone:''}`);
   if (show.team && show.team.length>0) descParts.push(`צוות: ${show.team.join(', ')}`);
