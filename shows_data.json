@@ -345,7 +345,8 @@
         "סקסופון - גיל סמואל"
       ],
       "id": 23,
-      "calEventId": null
+      "calEventId": null,
+      "financeSynced": true
     },
     {
       "date": "2026-08-04",
@@ -429,7 +430,8 @@
         "קלידן ארנון שרון"
       ],
       "id": 28,
-      "calEventId": "obouncib5apht8k27s4cpsmedg"
+      "calEventId": "obouncib5apht8k27s4cpsmedg",
+      "financeSynced": true
     },
     {
       "date": "2026-08-30",
