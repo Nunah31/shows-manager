@@ -409,7 +409,7 @@
       "calEventId": null
     },
     {
-      "date": "2026-06-29",
+      "date": "2026-09-04",
       "location": "בית ספר בגין - נהריה",
       "show": "מסע ישראלי",
       "type": "יסודי",
@@ -419,7 +419,7 @@
       "time": "10:15",
       "address": "האיריס 44 נהריה",
       "count": 1,
-      "status": "cancelled",
+      "status": "pending",
       "morning": true,
       "notes": "בני אב הבית 052-6380474",
       "team": [
@@ -430,8 +430,7 @@
         "קלידן ארנון שרון"
       ],
       "id": 28,
-      "calEventId": "obouncib5apht8k27s4cpsmedg",
-      "financeSynced": true
+      "calEventId": "obouncib5apht8k27s4cpsmedg"
     },
     {
       "date": "2026-08-30",
