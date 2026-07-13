@@ -354,6 +354,7 @@
 <script>
 let GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
 const GITHUB_REPO  = 'Nunah31/shows-manager';
+const DATA_REPO    = 'Nunah31/shows-manager-data';
 const DATA_FILE    = 'shows_data.json';
 let SCRIPT_URL = localStorage.getItem('sheets_script_url') || 'https://script.google.com/macros/s/AKfycbxtBGuEv5qnSdhqOw4roWYtL5n4EoKp5nc9GG-TNs8cos-S1RaMduS0Obg_yvoOA5AY/exec';
 
@@ -428,9 +429,23 @@ let customMembers = [];        // extra names added in this form session
 // ── GitHub helpers ──────────────────────────────────────────────────────────
 async function loadFromGithub() {
   try {
-    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`,
+    let r = await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${DATA_FILE}`,
       { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
-    if (r.status === 404) return false;
+    // הגירה חד-פעמית: אם הריפו הפרטי ריק, קרא מהריפו הישן ושמור לפרטי
+    if (r.status === 404) {
+      const old = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`,
+        { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
+      if (!old.ok) return false;
+      const od = await old.json();
+      // כתוב לריפו הפרטי
+      await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${DATA_FILE}`,
+        { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'העברת נתונים לריפו פרטי', content: od.content.replace(/\n/g,'') }) });
+      r = await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${DATA_FILE}`,
+        { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
+      if (!r.ok) return false;
+    }
+    if (!r.ok) return false;
     const d = await r.json();
     fileSha = d.sha;
     const binary = atob(d.content.replace(/\n/g,''));
@@ -469,7 +484,7 @@ async function saveToGithub() {
   const content = btoa(binary2);
   const body = { message: 'עדכון מופעים', content, ...(fileSha ? { sha: fileSha } : {}) };
   try {
-    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`,
+    const r = await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${DATA_FILE}`,
       { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const d = await r.json();
     fileSha = d.content?.sha;
