@@ -1440,7 +1440,6 @@ async function init() {
   if (window.google) { initGoogleAuth(); }
   else { window.addEventListener('load', () => { if(window.google) initGoogleAuth(); }); }
   updateHeaderHeight();
-  syncFinanceExpenses(); // ברקע — יוצר הוצאות לנגנים על מופעים שהתקיימו
 }
 
 // עדכון גובה הכותרת בפועל — כדי שהסרגל הדביק לא יחפוף/יחביא שורות
