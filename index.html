@@ -1355,15 +1355,44 @@ function updateSendBtn() {
   btn.textContent = `📤 שלח ל-${n} נגנים`;
 }
 
+let _sendQueue = [];
+let _sendIdx = 0;
+
 function sendToSelected() {
   const msg = currentMsgTab === 'balance' ? buildBalanceMsg() : buildMsg();
-  const names = [...sendSelected];
-  names.forEach((name, i) => {
-    const phone = teamPhones[name].replace(/\D/g,'');
-    const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
-    const url = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
-    setTimeout(() => window.open(url, '_blank'), i * 600);
-  });
+  _sendQueue = [...sendSelected].filter(n => teamPhones[n]);
+  _sendIdx = 0;
+  sendNext(msg);
+}
+
+function sendNext(msg) {
+  if (_sendIdx >= _sendQueue.length) {
+    updateNextBtn(null);
+    return;
+  }
+  const name = _sendQueue[_sendIdx];
+  const phone = teamPhones[name].replace(/\D/g,'');
+  const intl = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+  window.open(`https://wa.me/${intl}?text=${encodeURIComponent(msg || (currentMsgTab === 'balance' ? buildBalanceMsg() : buildMsg()))}`, '_blank');
+  _sendIdx++;
+  updateNextBtn(_sendIdx < _sendQueue.length ? _sendQueue[_sendIdx] : null);
+}
+
+function updateNextBtn(nextName) {
+  let btn = document.getElementById('btn-send-next');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'btn-send-next';
+    btn.style.cssText = 'width:100%;padding:13px;border-radius:10px;font-size:17px;font-family:inherit;font-weight:700;cursor:pointer;border:none;margin-top:8px;background:#25D366;color:white;display:none';
+    document.getElementById('btn-send-all').after(btn);
+  }
+  if (nextName) {
+    btn.textContent = `📤 שלח לנגן הבא ← ${nextName}`;
+    btn.onclick = () => sendNext();
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
 }
 
 function openSend() {
@@ -1374,7 +1403,12 @@ function openSend() {
   pushModalState('send');
   document.getElementById('send-panel').classList.add('open');
 }
-function closeSend() { document.getElementById('send-panel').classList.remove('open'); }
+function closeSend() {
+  document.getElementById('send-panel').classList.remove('open');
+  _sendQueue = []; _sendIdx = 0;
+  const nb = document.getElementById('btn-send-next');
+  if (nb) nb.style.display = 'none';
+}
 
 function copyMsg() {
   navigator.clipboard.writeText(document.getElementById('msg-preview').textContent);
