@@ -551,21 +551,25 @@ async function syncFinanceForShow(showId) {
   try {
     const r = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
       { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
-    if (!r.ok) {
+    if (!r.ok && r.status !== 404) {
       alert(`שגיאה בטעינת קובץ הכספים (קוד ${r.status}).\nבדקי שה-GitHub Token בהגדרות בעל הרשאת repo מלאה גם לריפו income-expense-tracker.`);
       return;
     }
-    const d = await r.json();
-    const sha = d.sha;
-    const binary = atob(d.content.replace(/\n/g,''));
-    const bytes = new Uint8Array(binary.length);
-    for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const financeData = JSON.parse(new TextDecoder('utf-8').decode(bytes));
-    if (!Array.isArray(financeData.entries)) financeData.entries = [];
+    let sha = null;
+    let financeData = { entries: [], savedAt: '' };
+    if (r.status !== 404) {
+      const d = await r.json();
+      sha = d.sha;
+      const binary = atob(d.content.replace(/\n/g,''));
+      const bytes = new Uint8Array(binary.length);
+      for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      financeData = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      if (!Array.isArray(financeData.entries)) financeData.entries = [];
+    }
 
     const newEntries = buildFinanceEntriesForShow(show);
     financeData.entries.push(...newEntries);
-    financeData.savedAt = new Date().toISOString(); // עדכון חותמת — כדי שאפליקציית הכספים תקלוט את העדכון
+    financeData.savedAt = new Date().toISOString();
 
     const jsonStr = JSON.stringify(financeData, null, 2);
     const bytes2 = new TextEncoder().encode(jsonStr);
@@ -574,7 +578,7 @@ async function syncFinanceForShow(showId) {
     const content = btoa(binary2);
     const putR = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
       { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `כספים למופע ${fmtDate(show.date)}`, content, sha }) });
+        body: JSON.stringify({ message: `כספים למופע ${fmtDate(show.date)}`, content, ...(sha ? { sha } : {}) }) });
 
     if (!putR.ok) {
       alert(`שגיאה בשמירה לכספים (קוד ${putR.status}).`);
