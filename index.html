@@ -168,6 +168,7 @@
       <p id="show-count"></p>
     </div>
     <div style="display:flex;gap:8px">
+      <button class="btn-export" onclick="forceLoadFromGithub()" title="טען מחדש מ-GitHub">🔄</button>
       <button class="btn-export" onclick="openSettings()" title="הגדרות">⚙️</button>
       <button class="btn-add" onclick="openAdd()">➕ מופע חדש</button>
     </div>
@@ -473,6 +474,18 @@ async function loadFromGithub() {
     }
     return true;
   } catch(e) { return false; }
+}
+
+async function forceLoadFromGithub() {
+  if (!GITHUB_TOKEN) { alert('אין Token מוגדר בהגדרות'); return; }
+  const ok = await loadFromGithub();
+  if (ok) {
+    localStorage.setItem('shows_data', JSON.stringify({ shows, teamPhones, teamOrder: BASE_TEAM }));
+    render();
+    alert('נטענו ' + shows.length + ' מופעים מ-GitHub ✅');
+  } else {
+    alert('שגיאה בטעינה מ-GitHub — בדקי את הטוקן');
+  }
 }
 
 async function saveToGithub() {
