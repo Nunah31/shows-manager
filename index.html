@@ -518,6 +518,7 @@ function buildFinanceEntriesForShow(show) {
   (show.team || []).forEach((member, idx) => {
     entries.push({
       id: `show_${show.id}_${idx}_${Date.now()}`,
+      show_id: show.id,
       type: 'expense',
       name: member,
       execDate: show.date,
@@ -531,6 +532,7 @@ function buildFinanceEntriesForShow(show) {
   const incomeName = [show.location, show.presenter].filter(Boolean).join(' ');
   entries.push({
     id: `show_income_${show.id}_${Date.now()}`,
+    show_id: show.id,
     type: 'income',
     name: incomeName,
     execDate: show.date,
@@ -543,6 +545,7 @@ function buildFinanceEntriesForShow(show) {
   if (show.presenter === 'מנשה אמיר') {
     entries.push({
       id: `show_presenter_${show.id}_${Date.now()}`,
+      show_id: show.id,
       type: 'expense',
       name: 'מנשה אמיר',
       execDate: show.date,
@@ -560,7 +563,6 @@ function buildFinanceEntriesForShow(show) {
 async function syncFinanceForShow(showId) {
   const show = shows.find(s => s.id === showId);
   if (!show) return;
-  if (show.financeSynced && !confirm('המופע הזה כבר סונכרן לכספים בעבר. לסנכרן שוב? (ייתכן וייווצרו רשומות כפולות)')) return;
   try {
     const r = await fetch(`https://api.github.com/repos/${FINANCE_GH_REPO}/contents/${FINANCE_GH_FILE}`,
       { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
@@ -578,6 +580,14 @@ async function syncFinanceForShow(showId) {
       for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
       financeData = JSON.parse(new TextDecoder('utf-8').decode(bytes));
       if (!Array.isArray(financeData.entries)) financeData.entries = [];
+    }
+
+    // בדיקה אם המופע כבר סונכרן בפועל (יש רשומות עם show_id זה)
+    const alreadySynced = financeData.entries.some(e => e.show_id === showId);
+    if (alreadySynced) {
+      if (!confirm(`המופע מ-${fmtDate(show.date)} כבר קיים בכספים.\nלדרוס את הרשומות הקיימות שלו?`)) return;
+      // מחיקת הרשומות הישנות של המופע הזה בלבד
+      financeData.entries = financeData.entries.filter(e => e.show_id !== showId);
     }
 
     const newEntries = buildFinanceEntriesForShow(show);
