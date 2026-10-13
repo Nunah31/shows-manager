@@ -62,6 +62,10 @@
   .card-contact a { color: #2563EB; text-decoration: none; font-weight: 600; }
   .card-team { font-size: 16px; color: #7C3AED; margin-top: 2px; line-height: 1.4; text-align: right; }
   .card-notes { font-size: 13px; color: #9CA3AF; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-private-notes-wrap { margin-top: 4px; }
+  .private-notes-toggle { background: none; border: 1px dashed #D1D5DB; border-radius: 6px; font-size: 12px; color: #6B7280; padding: 2px 8px; cursor: pointer; font-family: inherit; }
+  .private-notes-toggle:hover { background: #F3F4F6; }
+  .card-private-notes { font-size: 13px; color: #374151; background: #FEF9C3; border-radius: 6px; padding: 6px 10px; margin-top: 4px; line-height: 1.5; }
 
   .card-actions { display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; padding: 2px 10px 10px; }
   .icon-btn { background: #EFF6FF; border: none; border-radius: 9px; padding: 9px 16px; cursor: pointer; font-size: 19px; line-height: 1; text-decoration: none; display: block; text-align: center; }
@@ -293,6 +297,7 @@
         </div>
       </div>
       <div class="field form-full"><label>הערות</label><textarea id="f-notes" rows="3" placeholder="הערות חופשיות..."></textarea></div>
+      <div class="field form-full"><label>🔒 הערות פרטיות (לא עוברות ליומן)</label><textarea id="f-private-notes" rows="3" placeholder="מחירים, הסכמים, פרטים רגישים..."></textarea></div>
 
       <!-- Team selection -->
       <div class="field form-full">
@@ -474,6 +479,13 @@ async function loadFromGithub() {
     }
     return true;
   } catch(e) { return false; }
+}
+
+function togglePrivateNotes(btn) {
+  const notes = btn.nextElementSibling;
+  const open = notes.style.display === 'none';
+  notes.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '🔒 הערות פרטיות ⌃' : '🔒 הערות פרטיות ⌄';
 }
 
 async function forceLoadFromGithub() {
@@ -993,6 +1005,7 @@ function render() {
           ${contactStr?`<div class="card-contact">${contactStr}</div>`:''}
           ${teamStr?`<div class="card-team">${teamStr}</div>`:''}
           ${show.notes?`<div class="card-notes">💬 ${show.notes}</div>`:''}
+          ${show.privateNotes?`<div class="card-private-notes-wrap"><button class="private-notes-toggle" onclick="event.stopPropagation();togglePrivateNotes(this)">🔒 הערות פרטיות ⌄</button><div class="card-private-notes" style="display:none">${show.privateNotes.replace(/\n/g,'<br>')}</div></div>`:''}
         </div>
       </div>
       <div class="card-actions">
@@ -1052,7 +1065,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = '➕ מופע חדש';
   document.getElementById('btn-save').textContent = '➕ הוסף מופע';
   document.getElementById('btn-delete').style.display = 'none';
-  ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes','f-private-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-date-real').value = '';
   document.getElementById('f-date-text').textContent = 'בחר תאריך';
   document.getElementById('f-time-text').textContent = 'בחר שעה';
@@ -1106,6 +1119,7 @@ function openEdit(id) {
   document.getElementById('f-count').value = show.count || 1;
   document.getElementById('f-status').value = show.status || '';
   document.getElementById('f-notes').value = show.notes || '';
+  document.getElementById('f-private-notes').value = show.privateNotes || '';
   setMorning(show.morning !== false);
   // Restore team
   const savedTeam = show.team || [];
@@ -1202,6 +1216,7 @@ async function saveForm() {
     status: document.getElementById('f-status').value,
     morning: formMorning,
     notes: document.getElementById('f-notes').value.trim(),
+    privateNotes: document.getElementById('f-private-notes').value.trim(),
     team: [...selectedTeam],
   };
   let savedId;
