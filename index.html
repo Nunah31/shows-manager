@@ -297,7 +297,10 @@
         </div>
       </div>
       <div class="field form-full"><label>הערות</label><textarea id="f-notes" rows="3" placeholder="הערות חופשיות..."></textarea></div>
-      <div class="field form-full"><label>🔒 הערות פרטיות (לא עוברות ליומן)</label><textarea id="f-private-notes" rows="3" placeholder="מחירים, הסכמים, פרטים רגישים..."></textarea></div>
+      <div class="field form-full">
+        <button type="button" onclick="toggleFormPrivateNotes()" id="btn-private-toggle" style="background:none;border:1px dashed #D1D5DB;border-radius:8px;padding:6px 12px;font-size:14px;color:#6B7280;cursor:pointer;font-family:inherit;width:100%;text-align:right">🔒 הערות פרטיות (לא עוברות ליומן) ⌄</button>
+        <div id="private-notes-wrap" style="display:none;margin-top:6px"><textarea id="f-private-notes" rows="3" placeholder="מחירים, הסכמים, פרטים רגישים..." style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid #D1D5DB;font-size:16px;font-family:inherit;background:#FEF9C3;direction:rtl"></textarea></div>
+      </div>
 
       <!-- Team selection -->
       <div class="field form-full">
@@ -479,6 +482,14 @@ async function loadFromGithub() {
     }
     return true;
   } catch(e) { return false; }
+}
+
+function toggleFormPrivateNotes(forceOpen) {
+  const wrap = document.getElementById('private-notes-wrap');
+  const btn = document.getElementById('btn-private-toggle');
+  const open = forceOpen !== undefined ? forceOpen : wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '🔒 הערות פרטיות (לא עוברות ליומן) ⌃' : '🔒 הערות פרטיות (לא עוברות ליומן) ⌄';
 }
 
 function togglePrivateNotes(btn) {
@@ -1068,6 +1079,7 @@ function openAdd() {
   ['f-date','f-time','f-location','f-address','f-show','f-type','f-presenter','f-contact','f-phone','f-notes','f-private-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-date-real').value = '';
   document.getElementById('f-date-text').textContent = 'בחר תאריך';
+  toggleFormPrivateNotes(false);
   document.getElementById('f-time-text').textContent = 'בחר שעה';
   document.getElementById('f-time-clear').style.display = 'none';
   // ברירות מחדל לשם מופע / הפקה / שכבת גיל
@@ -1120,6 +1132,7 @@ function openEdit(id) {
   document.getElementById('f-status').value = show.status || '';
   document.getElementById('f-notes').value = show.notes || '';
   document.getElementById('f-private-notes').value = show.privateNotes || '';
+  toggleFormPrivateNotes(!!show.privateNotes);
   setMorning(show.morning !== false);
   // Restore team
   const savedTeam = show.team || [];
