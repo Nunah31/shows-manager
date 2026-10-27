@@ -525,9 +525,39 @@ async function saveToGithub() {
     const d = await r.json();
     fileSha = d.content?.sha;
     hideSaving();
+    weeklyBackup(content);
   } catch(e) { hideSaving(); }
   // סנכרון לגוגל שיטס (ברקע)
   syncToSheets();
+}
+
+async function weeklyBackup(content) {
+  if (!GITHUB_TOKEN) return;
+  const lastBackup = localStorage.getItem('last_backup_date') || '';
+  const today = new Date().toISOString().slice(0, 10);
+  if (lastBackup === today) return;
+  const daysSince = lastBackup ? Math.floor((new Date(today) - new Date(lastBackup)) / 86400000) : 99;
+  if (daysSince < 7) return;
+  try {
+    const backupFile = `backups/shows_backup_${today}.json`;
+    await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${backupFile}`,
+      { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `גיבוי שבועי ${today}`, content }) });
+    localStorage.setItem('last_backup_date', today);
+    const listR = await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/backups`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } });
+    if (listR.ok) {
+      const files = await listR.json();
+      if (Array.isArray(files) && files.length > 5) {
+        const toDelete = files.sort((a, b) => a.name.localeCompare(b.name)).slice(0, files.length - 5);
+        for (const f of toDelete) {
+          await fetch(`https://api.github.com/repos/${DATA_REPO}/contents/${f.path}`,
+            { method: 'DELETE', headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message: `מחיקת גיבוי ישן ${f.name}`, sha: f.sha }) });
+        }
+      }
+    }
+  } catch(e) {}
 }
 
 // ── אינטגרציה עם אפליקציית הכספים ────────────────────────────────────────────
